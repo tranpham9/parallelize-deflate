@@ -178,38 +178,38 @@ public:
     }
 };
 
-int main()
-{
+// int main()
+// {
 
-    std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
+//     std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
 
-    // Check if the file is successfully opened
-    if (!f.is_open())
-    {
-        std::cout << "Error opening the file!" << std::endl;
-        return EXIT_FAILURE;
-    }
+//     // Check if the file is successfully opened
+//     if (!f.is_open())
+//     {
+//         std::cout << "Error opening the file!" << std::endl;
+//         return EXIT_FAILURE;
+//     }
 
-    std::string test = "";
+//     std::string test = "";
 
-    std::getline(f, test);
-    // while (std::getline(f, test)){}
-        // std::cout << test << std::endl;
+//     std::getline(f, test);
+//     // while (std::getline(f, test)){}
+//         // std::cout << test << std::endl;
 
-    f.close();
+//     f.close();
 
-    // std::cout << "Original: " << test << std::endl;
-    std::cout << "Original length: " << test.length() << std::endl;
+//     // std::cout << "Original: " << test << std::endl;
+//     std::cout << "Original length: " << test.length() << std::endl;
 
-    // LZ77 compression algorithm
-    LZ77 compressor;
-    std::string LZ_compressed = compressor.compress(test);
+//     // LZ77 compression algorithm
+//     LZ77 compressor;
+//     std::string LZ_compressed = compressor.compress(test);
 
-    // std::cout << "Compressed: " << LZ_compressed << std::endl;
-    std::cout << "Compressed length: " << LZ_compressed.length() << std::endl;
+//     // std::cout << "Compressed: " << LZ_compressed << std::endl;
+//     std::cout << "Compressed length: " << LZ_compressed.length() << std::endl;
 
-    std::string LZ_decompressed = compressor.decompress(LZ_compressed);
-    // std::cout << "Decompressed: " << LZ_decompressed << std::endl;
+//     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
+//     // std::cout << "Decompressed: " << LZ_decompressed << std::endl;
 
-    std::cout << "Origonal == Decompressed: " << (test.compare(LZ_decompressed) == 0) << std::endl;
-}
+//     std::cout << "Origonal == Decompressed: " << (test.compare(LZ_decompressed) == 0) << std::endl;
+// }
