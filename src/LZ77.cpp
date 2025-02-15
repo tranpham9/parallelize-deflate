@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 struct Token
 {
@@ -178,38 +179,55 @@ public:
     }
 };
 
-// int main()
-// {
+int main()
+{
 
-//     std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
+    auto start = std::chrono::system_clock::now();
 
-//     // Check if the file is successfully opened
-//     if (!f.is_open())
-//     {
-//         std::cout << "Error opening the file!" << std::endl;
-//         return EXIT_FAILURE;
-//     }
+    std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
 
-//     std::string test = "";
+    // Check if the file is successfully opened
+    if (!f.is_open())
+    {
+        std::cout << "Error opening the file!" << std::endl;
+        return EXIT_FAILURE;
+    }
 
-//     std::getline(f, test);
-//     // while (std::getline(f, test)){}
-//         // std::cout << test << std::endl;
+    std::string test = "";
+    std::getline(f, test);
+    f.close();
 
-//     f.close();
 
-//     // std::cout << "Original: " << test << std::endl;
-//     std::cout << "Original length: " << test.length() << std::endl;
 
-//     // LZ77 compression algorithm
-//     LZ77 compressor;
-//     std::string LZ_compressed = compressor.compress(test);
 
-//     // std::cout << "Compressed: " << LZ_compressed << std::endl;
-//     std::cout << "Compressed length: " << LZ_compressed.length() << std::endl;
 
-//     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
-//     // std::cout << "Decompressed: " << LZ_decompressed << std::endl;
 
-//     std::cout << "Origonal == Decompressed: " << (test.compare(LZ_decompressed) == 0) << std::endl;
-// }
+
+    std::cout << "Original length: " << test.length() << std::endl;
+
+    // LZ77 compression algorithm
+    LZ77 compressor;
+
+    auto t1 = std::chrono::system_clock::now();
+    std::string LZ_compressed = compressor.compress(test);
+    auto t2 = std::chrono::system_clock::now();
+
+
+    std::cout << "Compressed length: " << LZ_compressed.length() << std::endl;
+
+    auto t3 = std::chrono::system_clock::now();
+    std::string LZ_decompressed = compressor.decompress(LZ_compressed);
+    auto t4 = std::chrono::system_clock::now();
+
+
+    auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1-start).count();
+    auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
+    auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4-t3).count();
+    auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4-start).count();
+
+    std::cout << "===================================================" << std::endl;
+    std::cout << "File Read Time:\t" << fileReatTime << std::endl;
+    std::cout << "Compression Time:\t" << cmpTime << std::endl;
+    std::cout << "Decompression Time:\t" << decmpTime << std::endl;
+    std::cout << "Total Time:\t" << totaltime << std::endl;
+}
