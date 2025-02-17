@@ -125,16 +125,3 @@ public:
         return pattern;
     }
 };
-
-
-// int main(){
-//     KMP_Search kmp;
-
-//     string pat = "bbabc";
-//     string window = "aabc";
-
-//     PatternResult result = kmp.search(pat, window);
-//     cout << (int)result.index << ", " << (int)result.matchLength << endl;
-
-//     return 1;
-// }

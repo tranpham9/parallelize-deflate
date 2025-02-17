@@ -34,37 +34,6 @@ private:
 
     void createTokenArray(std::string &text)
     {
-
-        for (size_t i = 0; i < text.size();)
-        {
-            int startWindow = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
-            u_int8_t largestMatch = 0;
-            u_int8_t iderateAmount = 0;
-
-            for (size_t j = startWindow; j < i && i - j > largestMatch; j++)
-            {
-                u_int8_t matchLength = 0;
-
-                while (text[j + matchLength] == text[i + matchLength])
-                {
-                    matchLength++;
-                }
-
-                if (matchLength >= largestMatch)
-                {
-                    largestMatch = matchLength;
-                    iderateAmount = i - j;
-                }
-            }
-            std::cout << "<" << (int)iderateAmount << ", " << (int)largestMatch << ", " << text[i + largestMatch] << ">" << std::endl;
-            tokenText.emplace_back(Token(iderateAmount, largestMatch, text[i + largestMatch]));
-
-            i = i + largestMatch + 1;
-        }
-    }
-
-    void createTokenArray2(std::string &text)
-    {
         KMP_Search kmp;
 
         // loops throught the entire text(aka. file)
@@ -81,7 +50,6 @@ private:
 
             // std::cout << "PatternResult[" << (int)patternResult.index << ", " << (int)patternResult.matchLength << "]" << endl;
 
-            // std::cout << "<" << (int)iderateAmount << ", " << (int)largestMatch << ", " << text[i + largestMatch+1] << ">" << std::endl;
             tokenText.emplace_back(Token(patternResult.index, patternResult.matchLength, text[i + patternResult.matchLength]));
 
             i = i + patternResult.matchLength + 1;
@@ -130,7 +98,7 @@ public:
         }
         tokenText.clear();
 
-        createTokenArray2(text);
+        createTokenArray(text);
         return tokenArrayToString();
     }
 
