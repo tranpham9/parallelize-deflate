@@ -48,19 +48,6 @@ int main(int argc, char *argv[]){
         */
     }
 
-    // read file
-    std::string test = "aabcbbabc";
-
-    // LZ77 compression algorithm
-    // LZ77 compressor;
-    // std::string LZ_compressed = compressor.compress(test);
-
-    std::cout << test << std::endl;
-    // std::cout << LZ_compressed << std::endl;
-
-
-    // huffman compression on LZ77 output
-
     return EXIT_SUCCESS;
 }
 
