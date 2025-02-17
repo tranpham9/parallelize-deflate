@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "KMPPatternMatch.cpp"
 #include <algorithm>
 #include <iostream>
 #include <fstream>
@@ -8,8 +9,8 @@
 
 struct Token
 {
-    char length;
-    char distance;
+    u_int8_t length;
+    u_int8_t distance;
     char character;
 
     Token(u_int8_t _length, u_int8_t _distance, char _character)
@@ -29,30 +30,27 @@ private:
 #define BUFFER_LENGTH 256
 #define COMPARE_WINDOW 256
 
-    std::vector<char> text;
     std::vector<Token> tokenText;
-    std::vector<char> compressedText;
 
-    void createTokenArray()
+    void createTokenArray(std::string &text)
     {
 
         for (size_t i = 0; i < text.size();)
         {
-            u_int8_t iderateAmount = 0;
-
             int startWindow = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
             u_int8_t largestMatch = 0;
+            u_int8_t iderateAmount = 0;
 
             for (size_t j = startWindow; j < i && i - j > largestMatch; j++)
             {
-                int matchLength = 0;
+                u_int8_t matchLength = 0;
 
                 while (text[j + matchLength] == text[i + matchLength])
                 {
                     matchLength++;
                 }
 
-                if (matchLength > largestMatch)
+                if (matchLength >= largestMatch)
                 {
                     largestMatch = matchLength;
                     iderateAmount = i - j;
@@ -65,19 +63,47 @@ private:
         }
     }
 
-    void tokenArrayToString()
+    void createTokenArray2(std::string &text)
     {
+        KMP_Search kmp;
+
+        // loops throught the entire text(aka. file)
+        for (size_t i = 0; i < text.size();)
+        {
+            int startWindow = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
+
+            std::string pattern = text.substr(i, COMPARE_WINDOW);
+            // std::cout << "pattern\t(" << pattern.length() << "): " << pattern << endl;
+            std::string compareWindow = text.substr(startWindow, i);
+            // std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
+
+            struct PatternResult patternResult = kmp.search(pattern, compareWindow);
+
+            // std::cout << "PatternResult[" << (int)patternResult.index << ", " << (int)patternResult.matchLength << "]" << endl;
+
+            // std::cout << "<" << (int)iderateAmount << ", " << (int)largestMatch << ", " << text[i + largestMatch+1] << ">" << std::endl;
+            tokenText.emplace_back(Token(patternResult.index, patternResult.matchLength, text[i + patternResult.matchLength]));
+
+            i = i + patternResult.matchLength + 1;
+        }
+    }
+
+    std::string tokenArrayToString()
+    {
+        std::vector<char> compressedText;
         for (auto &&token : tokenText)
         {
             compressedText.emplace_back((char)token.length);
             compressedText.emplace_back((char)token.distance);
             compressedText.emplace_back(token.character);
+            // std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
         }
+        return std::string(compressedText.begin(), compressedText.end());
     }
 
-    void stringToTokenArray()
+    void stringToTokenArray(std::string &compressedText)
     {
-        for (size_t i = 0; i < compressedText.size(); i = i + 3)
+        for (size_t i = 0; i < compressedText.size(); i = i + 4)
         {
             Token temp;
             temp.length = compressedText[i];
@@ -95,87 +121,48 @@ public:
     {
     }
 
-    std::string compress(std::string _text)
+    std::string compress(std::string &text)
     {
-        if (_text.empty())
+        if (text.empty())
         {
             // check is compression is avaliable
             return NULL;
         }
-        resetInfo();
+        tokenText.clear();
 
-        text = std::vector(_text.begin(), _text.end());
-
-        for (size_t i = 0; i < text.size();)
-        {
-            u_int8_t iderateAmount = 0;
-
-            int startWindow = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
-            u_int8_t largestMatch = 0;
-
-            for (size_t j = startWindow; j < i && i - j > largestMatch; j++)
-            {
-                u_int8_t matchLength = 0;
-
-                while (text[j + matchLength] == text[i + matchLength])
-                {
-                    matchLength++;
-                }
-
-                if (matchLength > largestMatch)
-                {
-                    largestMatch = matchLength;
-                    iderateAmount = i - j;
-                }
-            }
-            // std::cout << "<" << (int)iderateAmount << ", " << (int)largestMatch << ", " << _text[i + largestMatch] << ">" << std::endl;
-            tokenText.emplace_back(Token(iderateAmount, largestMatch, _text[i + largestMatch]));
-
-            i = i + largestMatch + 1;
-        }
-
-        tokenArrayToString();
-
-        return std::string(compressedText.begin(), compressedText.end());
+        createTokenArray2(text);
+        return tokenArrayToString();
     }
 
-    std::string decompress(std::string _compressedText)
+    std::string decompress(std::string &compressedText)
     {
-        if (_compressedText.empty())
+        if (compressedText.empty())
         {
             return NULL;
         }
-        resetInfo();
+        tokenText.clear();
+        std::vector<char> decompressedText;
 
-        compressedText = std::vector<char>(_compressedText.begin(), _compressedText.end());
-
-        stringToTokenArray();
+        stringToTokenArray(compressedText);
 
         for (size_t i = 0; i < tokenText.size(); i++)
         {
             char length = tokenText[i].length;
             char distance = tokenText[i].distance;
 
-            long startingPosition = text.size() - length;
+            long startingPosition = decompressedText.size() - length;
 
             for (size_t j = startingPosition; j < startingPosition + distance; j++)
             {
-                text.emplace_back(text[j]);
+                decompressedText.emplace_back(decompressedText[j]);
                 // std::cout << "(" << i << ", " << j << ")\tcopy:\t" << text[j] << std::endl;
             }
 
-            text.emplace_back(tokenText[i].character);
+            decompressedText.emplace_back(tokenText[i].character);
             // std::cout << "(" << i << ")\tnew:\t" << tokenText[i].character << std::endl;
         }
 
-        return std::string(text.begin(), text.end());
-    }
-
-    void resetInfo()
-    {
-        text.clear();
-        tokenText.clear();
-        compressedText.clear();
+        return std::string(decompressedText.begin(), decompressedText.end());
     }
 };
 
@@ -193,17 +180,13 @@ int main()
         return EXIT_FAILURE;
     }
 
-    std::string test = "";
+    std::string test = "aabcbbabc";
+    // std::vector<std::byte> bytes;
     std::getline(f, test);
     f.close();
 
-
-
-
-
-
-
-    std::cout << "Original length: " << test.length() << std::endl;
+    // std::cout << "Text: " << test << endl;
+    std::cout << "Original length:\t" << test.length() << std::endl;
 
     // LZ77 compression algorithm
     LZ77 compressor;
@@ -212,22 +195,22 @@ int main()
     std::string LZ_compressed = compressor.compress(test);
     auto t2 = std::chrono::system_clock::now();
 
-
-    std::cout << "Compressed length: " << LZ_compressed.length() << std::endl;
+    std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
 
     auto t3 = std::chrono::system_clock::now();
     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
     auto t4 = std::chrono::system_clock::now();
 
+    // std::cout << LZ_compressed << endl;
 
-    auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1-start).count();
-    auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count();
-    auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4-t3).count();
-    auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4-start).count();
+    auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
+    auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
+    auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - start).count();
 
     std::cout << "===================================================" << std::endl;
-    std::cout << "File Read Time:\t" << fileReatTime << std::endl;
+    std::cout << "File Read Time:\t\t" << fileReatTime << std::endl;
     std::cout << "Compression Time:\t" << cmpTime << std::endl;
     std::cout << "Decompression Time:\t" << decmpTime << std::endl;
-    std::cout << "Total Time:\t" << totaltime << std::endl;
+    std::cout << "Total Time:\t\t" << totaltime << std::endl;
 }
