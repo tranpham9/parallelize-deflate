@@ -61,17 +61,17 @@ private:
         std::vector<char> compressedText;
         for (auto &&token : tokenText)
         {
-            compressedText.emplace_back((char)token.length);
-            compressedText.emplace_back((char)token.distance);
+            compressedText.emplace_back(token.length);
+            compressedText.emplace_back(token.distance);
             compressedText.emplace_back(token.character);
-            // std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
+            std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
         }
         return std::string(compressedText.begin(), compressedText.end());
     }
 
     void stringToTokenArray(std::string &compressedText)
     {
-        for (size_t i = 0; i < compressedText.size(); i = i + 4)
+        for (size_t i = 0; i < compressedText.size(); i = i + 3)
         {
             Token temp;
             temp.length = compressedText[i];
@@ -80,7 +80,7 @@ private:
 
             tokenText.emplace_back(temp);
 
-            // std::cout << "<" << (int)temp.length << ", " << (int)temp.distance << ", " << temp.character << ">\t";
+            std::cout << "<" << (int)temp.length << ", " << (int)temp.distance << ", " << temp.character << ">\t" << endl;
         }
     }
 
@@ -115,19 +115,23 @@ public:
 
         for (size_t i = 0; i < tokenText.size(); i++)
         {
-            char length = tokenText[i].length;
-            char distance = tokenText[i].distance;
+            u_int8_t length = tokenText[i].length;
+            u_int8_t distance = tokenText[i].distance;
+
+            std::cout << "length: " << (int)length << ", distance: " << (int)distance << endl; 
 
             long startingPosition = decompressedText.size() - length;
 
             for (size_t j = startingPosition; j < startingPosition + distance; j++)
             {
+                std::cout << (int)i << ", " << (int)j << endl;
+                if (distance == 0){
+                    break;
+                }
                 decompressedText.emplace_back(decompressedText[j]);
-                // std::cout << "(" << i << ", " << j << ")\tcopy:\t" << text[j] << std::endl;
             }
 
             decompressedText.emplace_back(tokenText[i].character);
-            // std::cout << "(" << i << ")\tnew:\t" << tokenText[i].character << std::endl;
         }
 
         return std::string(decompressedText.begin(), decompressedText.end());
@@ -150,7 +154,7 @@ int main()
 
     std::string test = "aabcbbabc";
     // std::vector<std::byte> bytes;
-    std::getline(f, test);
+    // std::getline(f, test);
     f.close();
 
     // std::cout << "Text: " << test << endl;
@@ -169,7 +173,8 @@ int main()
     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
     auto t4 = std::chrono::system_clock::now();
 
-    // std::cout << LZ_compressed << endl;
+    std::cout << "Compessed Text\t\t"<< LZ_compressed << endl;
+    std::cout << "Decompessed Text:\t" << LZ_decompressed << endl;
 
     auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
     auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
