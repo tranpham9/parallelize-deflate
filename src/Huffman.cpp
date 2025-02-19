@@ -124,3 +124,23 @@ pair<string, HuffmanNode *> HuffmanCodes(const string &data) {
 
     return {encodedResult, root};
 }
+
+string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
+    string decodedData;
+    HuffmanNode *currentNode = root;
+
+    for (char bit : encodedData) {
+        if (bit == '0') {
+            currentNode = currentNode->left;
+        } else if (bit == '1') {
+            currentNode = currentNode->right;
+        }
+        // Leaf node
+        if (!currentNode->left && !currentNode->right) {
+            decodedData += currentNode->data;
+            currentNode = root; // Go back to the root for the next character
+        }
+    }
+
+    return decodedData;
+}
