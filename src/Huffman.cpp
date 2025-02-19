@@ -1,0 +1,126 @@
+#include <iostream>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <utility>
+
+using namespace std;
+
+class HuffmanNode {
+public:
+    char data;
+    unsigned freq;
+    HuffmanNode *left;
+    HuffmanNode *right;
+
+    HuffmanNode(char data, unsigned freq, HuffmanNode *left, HuffmanNode *right) {
+        this->data = data;
+        this->freq = freq;
+        this->left = left;
+        this->right = right;
+    }
+
+    HuffmanNode(char data, unsigned freq) {
+        this->data = data;
+        this->freq = freq;
+        left = right = nullptr;
+    }
+};
+
+// Function object to be used as a custom comparator
+struct compare {
+    bool operator()(HuffmanNode *left, HuffmanNode *right) {
+        return (left->freq > right->freq);
+    }
+};
+
+string encode(const string &data, const unordered_map<char, string> &huffmanCode);
+string decode(const string &encodedData, HuffmanNode *root);
+
+/**
+ * @brief Build the Huffman Tree by repeatedly combining two nodes with the lowest frequncies
+ * into a new until there is only one node left. The last node will become the root of the tree
+ *
+ * @param string of data to build the Huffman tree
+ * @return Root of the newly built Huffman tree
+ */
+HuffmanNode *buildTree(string data) {
+    // Use an unordered map to count the occurences of characters
+    unordered_map<char, unsigned> freq;
+    for (char c : data) {
+        freq[c]++;
+    }
+
+    // Minheap to store the nodes of the tree based on frequencies
+    priority_queue<HuffmanNode *, vector<HuffmanNode *>, compare> minHeap;
+
+    // Create a new node for each character and add node to the minHeap
+    for (auto &pair : freq) {
+        minHeap.push(new HuffmanNode(pair.first, pair.second));
+    }
+
+    while (minHeap.size() != 1) {
+        // Removes 2 nodes with the lowest frequency from the minHeap
+        HuffmanNode *left = minHeap.top();
+        minHeap.pop();
+        HuffmanNode *right = minHeap.top();
+        minHeap.pop();
+
+        // Create a node to connect the left and right nodes, using the left and right sum as frequency
+        int sum = left->freq + right->freq;
+        minHeap.push(new HuffmanNode('$', sum, left, right));
+    }
+
+    // Return the reamaining node in the minHeap. This is the root node.
+    return minHeap.top();
+}
+
+/**
+ * @brief
+ *
+ * @param root The root of the Huffman tree
+ * @param str The original data
+ * @param huffmanCode Map to store the generated Huffman codes
+ */
+void printCodes(HuffmanNode *root, string str, unordered_map<char, string> &huffmanCode) {
+    if (!root)
+        return;
+
+    if (root->data != '$') {
+        huffmanCode[root->data] = str;
+    }
+
+    printCodes(root->left, str + "0", huffmanCode);
+    printCodes(root->right, str + "1", huffmanCode);
+}
+
+string encodeData(const string &data, const unordered_map<char, string> &huffmanCode) {
+    string encodedData;
+
+    for (char c : data) {
+        encodedData += huffmanCode.at(c);
+    }
+
+    return encodedData;
+}
+
+/**
+ * @brief
+ *
+ * @param data
+ * @return pair<string, HuffmanNode *> Encoded data as a string and the root of the Huffman tree
+ */
+pair<string, HuffmanNode *> HuffmanCodes(const string &data) {
+    if (data.empty())
+        return {"", nullptr};
+
+    // Build the Huffman tree
+    HuffmanNode *root = buildTree(data);
+
+    unordered_map<char, string> huffmanCode;
+    printCodes(root, "", huffmanCode);
+
+    string encodedResult = encodeData(data, huffmanCode);
+
+    return {encodedResult, root};
+}
