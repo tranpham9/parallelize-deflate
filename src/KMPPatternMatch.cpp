@@ -1,19 +1,20 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <stdint.h>
 
 using namespace std;
 
 struct PatternResult
 {
 public:
-    u_int8_t matchLength;
-    u_int8_t index;
+    uint8_t matchLength;
+    uint8_t index;
 
     PatternResult()
     {
-        int matchLength = 0;
-        int index = 0;
+        matchLength = 0;
+        index = 0;
     }
 };
 
@@ -114,7 +115,7 @@ public:
                 if (pattern.matchLength < (j - patternStart + 1))
                 {
                     pattern.matchLength = j - patternStart + 1;
-                    pattern.index = patternStart - i;
+                    pattern.index = j - i;
                     cout << "in:" << (int)pattern.index << ", " << (int)pattern.matchLength << " :: " << n << " + " << j << " - " << i << endl;
                 }
 
@@ -135,7 +136,7 @@ public:
             {
                 // Use lps value of previous index
                 // to avoid redundant comparisons
-                if (j != 0)
+                if (j != patternStart)
                     j = lps[j - patternStart - 1];
                 else
                     i++;

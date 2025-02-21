@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "KMPPatternMatch.cpp"
 #include <algorithm>
 #include <iostream>
@@ -9,11 +10,11 @@
 
 struct Token
 {
-    u_int8_t length;
-    u_int8_t distance;
+    uint8_t length;
+    uint8_t distance;
     char character;
 
-    Token(u_int8_t _length, u_int8_t _distance, char _character)
+    Token(uint8_t _length, uint8_t _distance, char _character)
     {
         length = _length;
         distance = _distance;
@@ -119,8 +120,8 @@ public:
 
         for (size_t i = 0; i < tokenText.size(); i++)
         {
-            u_int8_t length = tokenText[i].length;
-            u_int8_t distance = tokenText[i].distance;
+            uint8_t length = tokenText[i].length;
+            uint8_t distance = tokenText[i].distance;
 
             // std::cout << "length: " << (int)length << ", distance: " << (int)distance << endl; 
 
@@ -147,19 +148,19 @@ int main()
 
     auto start = std::chrono::system_clock::now();
 
-    std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
+//    std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
 
     // Check if the file is successfully opened
-    if (!f.is_open())
-    {
-        std::cout << "Error opening the file!" << std::endl;
-        return EXIT_FAILURE;
-    }
+//    if (!f.is_open())
+//    {
+//        std::cout << "Error opening the file!" << std::endl;
+//        return EXIT_FAILURE;
+//    }
 
     std::string test = "aabcbbabc";
     // std::vector<std::byte> bytes;
     // std::getline(f, test);
-    f.close();
+//    f.close();
 
     // std::cout << "Text: " << test << endl;
     std::cout << "Original length:\t" << test.length() << std::endl;
