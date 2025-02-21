@@ -39,14 +39,18 @@ private:
         // loops throught the entire text(aka. file)
         for (size_t i = 0; i < text.size();)
         {
-            int startWindow = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
+            int windowStart = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
+            // int windowEnd = (i-1) < 0 ? 0 : (i-1);
+            int windowEnd = i;
+            int patternEnd =  text.length() < (i+COMPARE_WINDOW) ? text.length() : i + COMPARE_WINDOW;
 
-            std::string pattern = text.substr(i, COMPARE_WINDOW);
+
+            std::string pattern = text.substr(i, patternEnd);
             // std::cout << "pattern\t(" << pattern.length() << "): " << pattern << endl;
-            std::string compareWindow = text.substr(startWindow, i);
+            std::string compareWindow = text.substr(windowStart, windowEnd);
             // std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
 
-            struct PatternResult patternResult = kmp.search(pattern, compareWindow);
+            struct PatternResult patternResult = kmp.search(text, i, patternEnd, windowStart, windowEnd);
 
             // std::cout << "PatternResult[" << (int)patternResult.index << ", " << (int)patternResult.matchLength << "]" << endl;
 
@@ -64,7 +68,7 @@ private:
             compressedText.emplace_back(token.length);
             compressedText.emplace_back(token.distance);
             compressedText.emplace_back(token.character);
-            // std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
+            std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
         }
         return std::string(compressedText.begin(), compressedText.end());
     }
@@ -154,11 +158,11 @@ int main()
 
     std::string test = "aabcbbabc";
     // std::vector<std::byte> bytes;
-    std::getline(f, test);
+    // std::getline(f, test);
     f.close();
 
     // std::cout << "Text: " << test << endl;
-    // std::cout << "Original length:\t" << test.length() << std::endl;
+    std::cout << "Original length:\t" << test.length() << std::endl;
 
     // LZ77 compression algorithm
     LZ77 compressor;
@@ -167,11 +171,14 @@ int main()
     std::string LZ_compressed = compressor.compress(test);
     auto t2 = std::chrono::system_clock::now();
 
-    // std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
+    std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
 
     auto t3 = std::chrono::system_clock::now();
     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
     auto t4 = std::chrono::system_clock::now();
+
+    std::cout << "Decompressed length:\t" << LZ_decompressed.length() << std::endl;
+
 
     // std::cout << "Compessed Text\t\t"<< LZ_compressed << endl;
     std::cout << LZ_decompressed;
