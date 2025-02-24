@@ -163,8 +163,6 @@ int main()
     std::getline(f, test);
     f.close();
 
-    // std::cout << "Text: " << test << endl;
-    // std::cout << "Original length:\t" << test.length() << std::endl;
 
     // LZ77 compression algorithm
     LZ77 compressor;
@@ -173,17 +171,20 @@ int main()
     std::string LZ_compressed = compressor.compress(test);
     auto t2 = std::chrono::system_clock::now();
 
-    // std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
 
     auto t3 = std::chrono::system_clock::now();
     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
     auto t4 = std::chrono::system_clock::now();
 
-    // std::cout << "Decompressed length:\t" << LZ_decompressed.length() << std::endl;
 
-
+    // std::cout << "Text: " << test << endl;
     // std::cout << "Compessed Text\t\t"<< LZ_compressed << endl;
-    std::cout << LZ_decompressed;
+    // std::cout << LZ_decompressed;
+
+    std::cout << "===================================================" << std::endl;
+    std::cout << "Original length:\t" << test.length() << std::endl;
+    std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
+    std::cout << "Decompressed length:\t" << LZ_decompressed.length() << std::endl;
 
     // cout << "\n\n";
     // if (!LZ_compressed.compare(LZ_decompressed)){
@@ -192,14 +193,14 @@ int main()
     //     cout << "False" << endl;
     // }
 
-    // auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
-    // auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    // auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
-    // auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - start).count();
+    auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
+    auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
+    auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - start).count();
 
-    // std::cout << "===================================================" << std::endl;
-    // std::cout << "File Read Time:\t\t" << fileReatTime << std::endl;
-    // std::cout << "Compression Time:\t" << cmpTime << std::endl;
-    // std::cout << "Decompression Time:\t" << decmpTime << std::endl;
-    // std::cout << "Total Time:\t\t" << totaltime << std::endl;
+    std::cout << "===================================================" << std::endl;
+    std::cout << "File Read Time:\t\t" << fileReatTime << std::endl;
+    std::cout << "Compression Time:\t" << cmpTime << std::endl;
+    std::cout << "Decompression Time:\t" << decmpTime << std::endl;
+    std::cout << "Total Time:\t\t" << totaltime << std::endl;
 }
