@@ -10,11 +10,11 @@
 
 struct Token
 {
-    uint8_t length;
+    uint16_t length;
     uint8_t distance;
     char character;
 
-    Token(uint8_t _length, uint8_t _distance, char _character)
+    Token(uint16_t _length, uint8_t _distance, char _character)
     {
         length = _length;
         distance = _distance;
@@ -28,8 +28,8 @@ class LZ77
 {
 
 private:
-static const size_t BUF_LENGTH = 255;
-#define BUFFER_LENGTH 255
+#define TOKEN_BYTE_SIZE 4
+#define BUFFER_LENGTH 4095 // max value 65535
 #define COMPARE_WINDOW 255
 
     std::vector<Token> tokenText;
@@ -67,7 +67,9 @@ static const size_t BUF_LENGTH = 255;
         std::vector<char> compressedText;
         for (auto &&token : tokenText)
         {
-            compressedText.emplace_back(token.length);
+            compressedText.emplace_back((token.length >> 8) & 0xff); // high bytes
+            compressedText.emplace_back(token.length & 0xff); // low bytes
+
             compressedText.emplace_back(token.distance);
             compressedText.emplace_back(token.character);
             // std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
@@ -77,16 +79,18 @@ static const size_t BUF_LENGTH = 255;
 
     void stringToTokenArray(std::string &compressedText)
     {
-        for (size_t i = 0; i < compressedText.size(); i = i + 3)
+        for (size_t i = 0; i < compressedText.size(); i = i + TOKEN_BYTE_SIZE)
         {
             Token temp;
-            temp.length = compressedText[i];
-            temp.distance = compressedText[i + 1];
-            temp.character = compressedText[i + 2];
+            temp.length = ((uint16_t)compressedText[i]) << 8; // high bytes
+            temp.length |= compressedText[i + 1] & 0xff; // low bytes
+
+            temp.distance = compressedText[i + 2];
+            temp.character = compressedText[i + 3];
 
             tokenText.emplace_back(temp);
 
-            // std::cout << "<" << (int)temp.length << ", " << (int)temp.distance << ", " << temp.character << ">\t" << endl;
+            // std::cout << "<" << (uint16_t)temp.length << ", " << (int)temp.distance << ", " << temp.character << ">\t" << endl;
         }
     }
 
@@ -121,12 +125,12 @@ public:
 
         for (size_t i = 0; i < tokenText.size(); i++)
         {
-            uint8_t length = tokenText[i].length;
+            uint16_t length = tokenText[i].length;
             uint8_t distance = tokenText[i].distance;
 
             // std::cout << "length: " << (int)length << ", distance: " << (int)distance << endl; 
 
-            long startingPosition = decompressedText.size() - length;
+            size_t startingPosition = decompressedText.size() - length;
 
             for (size_t j = startingPosition; j < startingPosition + distance; j++)
             {
@@ -192,10 +196,10 @@ int main()
     //     cout << "False" << endl;
     // }
 
-    auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
-    auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-    auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
-    auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - start).count();
+    // auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
+    // auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+    // auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
+    // auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - start).count();
 
     // std::cout << "===================================================" << std::endl;
     // std::cout << "File Read Time:\t\t" << fileReatTime << std::endl;
