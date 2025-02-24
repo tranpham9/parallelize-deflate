@@ -10,11 +10,11 @@
 
 struct Token
 {
-    uint16_t length;
+    uint8_t length;
     uint8_t distance;
     char character;
 
-    Token(uint16_t _length, uint8_t _distance, char _character)
+    Token(uint8_t _length, uint8_t _distance, char _character)
     {
         length = _length;
         distance = _distance;
@@ -28,8 +28,8 @@ class LZ77
 {
 
 private:
-#define TOKEN_BYTE_SIZE 4
-#define BUFFER_LENGTH 4095 // max value 65535
+#define TOKEN_BYTE_SIZE 3
+#define BUFFER_LENGTH 255 // max value 255
 #define COMPARE_WINDOW 255
 
     std::vector<Token> tokenText;
@@ -67,9 +67,7 @@ private:
         std::vector<char> compressedText;
         for (auto &&token : tokenText)
         {
-            compressedText.emplace_back((token.length >> 8) & 0xff); // high bytes
-            compressedText.emplace_back(token.length & 0xff); // low bytes
-
+            compressedText.emplace_back(token.length);
             compressedText.emplace_back(token.distance);
             compressedText.emplace_back(token.character);
             // std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
@@ -82,15 +80,13 @@ private:
         for (size_t i = 0; i < compressedText.size(); i = i + TOKEN_BYTE_SIZE)
         {
             Token temp;
-            temp.length = ((uint16_t)compressedText[i]) << 8; // high bytes
-            temp.length |= compressedText[i + 1] & 0xff; // low bytes
-
-            temp.distance = compressedText[i + 2];
-            temp.character = compressedText[i + 3];
+            temp.length = compressedText[i];
+            temp.distance = compressedText[i + 1];
+            temp.character = compressedText[i + 2];
 
             tokenText.emplace_back(temp);
 
-            // std::cout << "<" << (uint16_t)temp.length << ", " << (int)temp.distance << ", " << temp.character << ">\t" << endl;
+            // std::cout << "<" << (int)temp.length << ", " << (int)temp.distance << ", " << temp.character << ">\t" << endl;
         }
     }
 
@@ -125,7 +121,7 @@ public:
 
         for (size_t i = 0; i < tokenText.size(); i++)
         {
-            uint16_t length = tokenText[i].length;
+            uint8_t length = tokenText[i].length;
             uint8_t distance = tokenText[i].distance;
 
             // std::cout << "length: " << (int)length << ", distance: " << (int)distance << endl; 
