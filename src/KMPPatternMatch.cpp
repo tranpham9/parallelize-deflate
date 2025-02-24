@@ -112,7 +112,7 @@ public:
             if (txt[i] == txt[j])
             {
 
-                if (pattern.matchLength < (j - patternStart + 1))
+                if (pattern.matchLength <= (j - patternStart + 1))
                 {
                     pattern.matchLength = j - patternStart + 1;
                     pattern.index = j - i;
