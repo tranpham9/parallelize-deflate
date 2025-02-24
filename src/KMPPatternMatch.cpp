@@ -8,8 +8,8 @@ using namespace std;
 struct PatternResult
 {
 public:
-    uint8_t matchLength;
-    uint8_t index;
+    size_t matchLength;
+    size_t index;
 
     PatternResult()
     {
@@ -21,17 +21,17 @@ public:
 class KMP_Search
 {
 private:
-    void constructLps(string &txt, int patternStart, int patternEnd, vector<int> &lps)
+    void constructLps(string &txt, size_t patternStart, size_t patternEnd, vector<size_t> &lps)
     {
 
         // len stores the length of longest prefix which
         // is also a suffix for the previous index
-        int len = patternStart;
+        size_t len = patternStart;
 
         // lps[0] is always patternStart
         lps[0] = patternStart;
 
-        int i = patternStart + 1;
+        size_t i = patternStart + 1;
         while (i < patternEnd)
         {
             // cout << i << ", " << len << endl;
@@ -68,25 +68,25 @@ private:
     }
 
 public:
-    struct PatternResult search(string &txt, int patternStart, int patternEnd, int textStart, int textEnd)
+    struct PatternResult search(string &txt, size_t patternStart, size_t patternEnd, size_t textStart, size_t textEnd)
     {
         struct PatternResult pattern;
 
-        int n = textEnd;
-        int m = patternEnd;
+        size_t n = textEnd;
+        size_t m = patternEnd;
         if (n == textStart || m == patternStart)
         {
             return pattern;
         }
 
-        vector<int> lps(m - patternStart);
+        vector<size_t> lps(m - patternStart);
 
         constructLps(txt, patternStart, patternEnd, lps);
 
         // Pointers i and j, for traversing
         // the text and pattern
-        int i = textStart;    // traces the text
-        int j = patternStart; // traces the pattern
+        size_t i = textStart;    // traces the text
+        size_t j = patternStart; // traces the pattern
 
         // cout << "==================================" << endl;
         // for (auto &&i : lps)
@@ -99,10 +99,10 @@ public:
         //     cout << (i-patternStart) << ", ";
         // }
 
-        // std::string patternT = txt.substr(patternStart, patternEnd);
+        // std::string patternT = txt.substr(patternStart, patternEnd-patternStart);
         // std::cout << "\npattern\t(" << patternT.length() << "): " << patternT << endl;
-        // std::string compareWindow = txt.substr(textStart, textEnd);
-        // std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
+        // std::string compareWindow = txt.substr(textStart, textEnd-textStart);
+        // std::cout << "window \t(" << compareWindow.size() << "): " << compareWindow << endl;
 
         while (i < n)
         {

@@ -28,8 +28,9 @@ class LZ77
 {
 
 private:
-#define BUFFER_LENGTH 256
-#define COMPARE_WINDOW 256
+static const size_t BUF_LENGTH = 255;
+#define BUFFER_LENGTH 255
+#define COMPARE_WINDOW 255
 
     std::vector<Token> tokenText;
 
@@ -40,10 +41,10 @@ private:
         // loops throught the entire text(aka. file)
         for (size_t i = 0; i < text.size();)
         {
-            int windowStart = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
+            size_t windowStart = std::max((long int)0, (long int)(i - BUFFER_LENGTH));
             // int windowEnd = (i-1) < 0 ? 0 : (i-1);
-            int windowEnd = i;
-            int patternEnd =  (text.length()-1) < (i+COMPARE_WINDOW) ? (text.length()-1) : i + COMPARE_WINDOW;
+            size_t windowEnd = i;
+            size_t patternEnd =  std::min((text.length()-1) , (i+COMPARE_WINDOW));
 
 
             // std::string pattern = text.substr(i, patternEnd);
@@ -51,7 +52,7 @@ private:
             // std::string compareWindow = text.substr(windowStart, windowEnd);
             // std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
 
-            struct PatternResult patternResult = kmp.search(text, i, patternEnd, windowStart, windowEnd);
+            struct PatternResult patternResult = kmp.search(text, i, patternEnd, windowStart, i);
 
             // std::cout << "PatternResult[" << (int)patternResult.index << ", " << (int)patternResult.matchLength << "]" << endl;
 
@@ -69,7 +70,7 @@ private:
             compressedText.emplace_back(token.length);
             compressedText.emplace_back(token.distance);
             compressedText.emplace_back(token.character);
-            std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
+            // std::cout << "<" << (int)token.length << ", " << (int)token.distance << ", " << token.character << ">" << std::endl;
         }
         return std::string(compressedText.begin(), compressedText.end());
     }
@@ -163,7 +164,7 @@ int main()
     f.close();
 
     // std::cout << "Text: " << test << endl;
-    std::cout << "Original length:\t" << test.length() << std::endl;
+    // std::cout << "Original length:\t" << test.length() << std::endl;
 
     // LZ77 compression algorithm
     LZ77 compressor;
@@ -172,24 +173,24 @@ int main()
     std::string LZ_compressed = compressor.compress(test);
     auto t2 = std::chrono::system_clock::now();
 
-    std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
+    // std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
 
     auto t3 = std::chrono::system_clock::now();
     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
     auto t4 = std::chrono::system_clock::now();
 
-    std::cout << "Decompressed length:\t" << LZ_decompressed.length() << std::endl;
+    // std::cout << "Decompressed length:\t" << LZ_decompressed.length() << std::endl;
 
 
     // std::cout << "Compessed Text\t\t"<< LZ_compressed << endl;
     std::cout << LZ_decompressed;
 
-    cout << "\n\n";
-    if (!LZ_compressed.compare(LZ_decompressed)){
-        cout << "True" << endl;
-    }else{
-        cout << "False" << endl;
-    }
+    // cout << "\n\n";
+    // if (!LZ_compressed.compare(LZ_decompressed)){
+    //     cout << "True" << endl;
+    // }else{
+    //     cout << "False" << endl;
+    // }
 
     auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
     auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
