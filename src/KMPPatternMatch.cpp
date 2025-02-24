@@ -53,7 +53,7 @@ private:
 
                     // Update len to the previous lps value
                     // to avoid reduntant comparisons
-                    cout << (len - patternStart - 1) << endl;
+                    // cout << (len - patternStart - 1) << endl;
                     len = lps[len - patternStart - 1];
                 }
                 else
@@ -88,21 +88,21 @@ public:
         int i = textStart;    // traces the text
         int j = patternStart; // traces the pattern
 
-        cout << "==================================" << endl;
-        for (auto &&i : lps)
-        {
-            cout << i << ", ";
-        }
-        cout << "\n";
-        for (auto &&i : lps)
-        {
-            cout << (i-patternStart) << ", ";
-        }
+        // cout << "==================================" << endl;
+        // for (auto &&i : lps)
+        // {
+        //     cout << i << ", ";
+        // }
+        // cout << "\n";
+        // for (auto &&i : lps)
+        // {
+        //     cout << (i-patternStart) << ", ";
+        // }
 
-        std::string patternT = txt.substr(patternStart, patternEnd);
-        std::cout << "\npattern\t(" << patternT.length() << "): " << patternT << endl;
-        std::string compareWindow = txt.substr(textStart, textEnd);
-        std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
+        // std::string patternT = txt.substr(patternStart, patternEnd);
+        // std::cout << "\npattern\t(" << patternT.length() << "): " << patternT << endl;
+        // std::string compareWindow = txt.substr(textStart, textEnd);
+        // std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
 
         while (i < n)
         {
@@ -116,7 +116,7 @@ public:
                 {
                     pattern.matchLength = j - patternStart + 1;
                     pattern.index = j - i;
-                    cout << "in:" << (int)pattern.index << ", " << (int)pattern.matchLength << " :: " << n << " + " << j << " - " << i << endl;
+                    // cout << "in:" << (int)pattern.index << ", " << (int)pattern.matchLength << " :: " << n << " + " << j << " - " << i << endl;
                 }
 
                 i++;
@@ -126,7 +126,7 @@ public:
                 // store the start index in result
                 if (j == m)
                 {
-                    cout << "end" << endl;
+                    // cout << "end" << endl;
                     return pattern;
                 }
             }
