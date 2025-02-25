@@ -1,6 +1,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stdint.h>
 #include "KMPPatternMatch.cpp"
 #include <algorithm>
 #include <iostream>
@@ -9,11 +10,11 @@
 
 struct Token
 {
-    u_int8_t length;
-    u_int8_t distance;
+    uint8_t length;
+    uint8_t distance;
     char character;
 
-    Token(u_int8_t _length, u_int8_t _distance, char _character)
+    Token(uint8_t _length, uint8_t _distance, char _character)
     {
         length = _length;
         distance = _distance;
@@ -27,8 +28,9 @@ class LZ77
 {
 
 private:
-#define BUFFER_LENGTH 256
-#define COMPARE_WINDOW 256
+#define TOKEN_BYTE_SIZE 3
+#define BUFFER_LENGTH 255 // max value 255
+#define COMPARE_WINDOW 255
 
     std::vector<Token> tokenText;
 
@@ -39,16 +41,10 @@ private:
         // loops throught the entire text(aka. file)
         for (size_t i = 0; i < text.size();)
         {
-            int startWindow = 0 < (i - BUFFER_LENGTH) ? 0 : i - BUFFER_LENGTH; // max(0, i-BUFFER_LENGTH)
+            size_t windowStart = std::max((long int)0, (long int)(i - BUFFER_LENGTH));
+            size_t patternEnd =  std::min((text.length()-1) , (i+COMPARE_WINDOW));
 
-            std::string pattern = text.substr(i, COMPARE_WINDOW);
-            // std::cout << "pattern\t(" << pattern.length() << "): " << pattern << endl;
-            std::string compareWindow = text.substr(startWindow, i);
-            // std::cout << "window \t(" << compareWindow.length() << "): " << compareWindow << endl;
-
-            struct PatternResult patternResult = kmp.search(pattern, compareWindow);
-
-            // std::cout << "PatternResult[" << (int)patternResult.index << ", " << (int)patternResult.matchLength << "]" << endl;
+            struct PatternResult patternResult = kmp.search(text, i, patternEnd, windowStart, i);
 
             tokenText.emplace_back(Token(patternResult.index, patternResult.matchLength, text[i + patternResult.matchLength]));
 
@@ -71,7 +67,7 @@ private:
 
     void stringToTokenArray(std::string &compressedText)
     {
-        for (size_t i = 0; i < compressedText.size(); i = i + 3)
+        for (size_t i = 0; i < compressedText.size(); i = i + TOKEN_BYTE_SIZE)
         {
             Token temp;
             temp.length = compressedText[i];
@@ -115,16 +111,15 @@ public:
 
         for (size_t i = 0; i < tokenText.size(); i++)
         {
-            u_int8_t length = tokenText[i].length;
-            u_int8_t distance = tokenText[i].distance;
+            uint8_t length = tokenText[i].length;
+            uint8_t distance = tokenText[i].distance;
 
             // std::cout << "length: " << (int)length << ", distance: " << (int)distance << endl; 
 
-            long startingPosition = decompressedText.size() - length;
+            size_t startingPosition = decompressedText.size() - length;
 
             for (size_t j = startingPosition; j < startingPosition + distance; j++)
             {
-                // std::cout << (int)i << ", " << (int)j << endl;
                 if (distance == 0){
                     break;
                 }
@@ -143,22 +138,20 @@ int main()
 
     auto start = std::chrono::system_clock::now();
 
-    std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
+   std::ifstream f("/home/zfuser/myucf/COP4520/parallelize-deflate/input.txt");
 
     // Check if the file is successfully opened
-    if (!f.is_open())
-    {
-        std::cout << "Error opening the file!" << std::endl;
-        return EXIT_FAILURE;
-    }
+   if (!f.is_open())
+   {
+       std::cout << "Error opening the file!" << std::endl;
+       return EXIT_FAILURE;
+   }
 
     std::string test = "aabcbbabc";
     // std::vector<std::byte> bytes;
     std::getline(f, test);
     f.close();
 
-    // std::cout << "Text: " << test << endl;
-    // std::cout << "Original length:\t" << test.length() << std::endl;
 
     // LZ77 compression algorithm
     LZ77 compressor;
@@ -167,24 +160,29 @@ int main()
     std::string LZ_compressed = compressor.compress(test);
     auto t2 = std::chrono::system_clock::now();
 
-    // std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
 
     auto t3 = std::chrono::system_clock::now();
     std::string LZ_decompressed = compressor.decompress(LZ_compressed);
     auto t4 = std::chrono::system_clock::now();
 
-    // std::cout << "Compessed Text\t\t"<< LZ_compressed << endl;
-    std::cout << LZ_decompressed;
 
+    // std::cout << "Text: " << test << endl;
+    // std::cout << "Compessed Text\t\t"<< LZ_compressed << endl;
+    // std::cout << LZ_decompressed;
+
+    std::cout << "===================================================" << std::endl;
+    std::cout << "Original length:\t" << test.length() << std::endl;
+    std::cout << "Compressed length:\t" << LZ_compressed.length() << std::endl;
+    std::cout << "Decompressed length:\t" << LZ_decompressed.length() << std::endl;
 
     auto fileReatTime = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - start).count();
     auto cmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     auto decmpTime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - t3).count();
     auto totaltime = std::chrono::duration_cast<std::chrono::milliseconds>(t4 - start).count();
 
-    // std::cout << "===================================================" << std::endl;
-    // std::cout << "File Read Time:\t\t" << fileReatTime << std::endl;
-    // std::cout << "Compression Time:\t" << cmpTime << std::endl;
-    // std::cout << "Decompression Time:\t" << decmpTime << std::endl;
-    // std::cout << "Total Time:\t\t" << totaltime << std::endl;
+    std::cout << "===================================================" << std::endl;
+    std::cout << "File Read Time:\t\t" << fileReatTime << std::endl;
+    std::cout << "Compression Time:\t" << cmpTime << std::endl;
+    std::cout << "Decompression Time:\t" << decmpTime << std::endl;
+    std::cout << "Total Time:\t\t" << totaltime << std::endl;
 }
