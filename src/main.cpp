@@ -1,5 +1,6 @@
 #include <iostream>
 #include "LZ77.cpp"
+#include "Huffman.cpp"
 #include "FileParsing.cpp"
 
 
@@ -31,9 +32,7 @@ int main(int argc, char *argv[]){
 
         std::string final_decompressed_text = lz77.decompress(huffman_decompress);
 
-        /*
-            write to decompressed file
-        */
+        writeFile(final_decompressed_text, fileName + "." + COMPRESSED_FILE_EXTENTION);
     }else{
         //compress
 
