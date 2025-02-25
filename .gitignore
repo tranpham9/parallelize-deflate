@@ -33,3 +33,9 @@
 
 # macOS
 **/.DS_Store
+
+# program build
+build/*
+
+#.vscode
+.vscode/*
