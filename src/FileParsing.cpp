@@ -50,11 +50,11 @@ std::string readFile(std::string fileName)
 }
 
 /**
- * Writes the compressed text to a file
- * @param compressedInfo The string of the compressed file
- * @param fileName This is a the original file name with the compression extention
+ * Writes the text to a file
+ * @param text The string of the compressed file
+ * @param fileName Name of the file to be writen to
  */
-void writeCompressFile(std::string compressedInfo, std::string fileName)
+void writeFile(std::string text, std::string fileName)
 {
     std::ofstream outfile(fileName);
 
@@ -62,7 +62,7 @@ void writeCompressFile(std::string compressedInfo, std::string fileName)
         throw std::runtime_error("Could not open file");
     }
 
-    outfile << compressedInfo;
+    outfile << text;
 
     outfile.close();
 }
