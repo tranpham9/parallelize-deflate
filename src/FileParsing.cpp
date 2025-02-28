@@ -44,9 +44,11 @@ std::string readFile(std::string fileName)
 
     std::stringstream buffer;
     buffer << inputFile.rdbuf();
-    return buffer.str();
+
 
     inputFile.close();
+
+    return buffer.str();
 }
 
 /**
@@ -57,10 +59,6 @@ std::string readFile(std::string fileName)
 void writeFile(std::string text, std::string fileName)
 {
     std::ofstream outfile(fileName);
-
-    if(outfile.is_open()){
-        throw std::runtime_error("Could not open file");
-    }
 
     outfile << text;
 
