@@ -1,4 +1,6 @@
 #include <iostream>
+#include <thread>
+#include <vector>
 #include "LZ77.cpp"
 #include "Huffman.cpp"
 #include "FileParsing.cpp"
@@ -8,23 +10,14 @@
 #define COMPRESSED_FILE_EXTENTION "pdc"
 
 
-// Program arguments: 
-//      1. FileName
 
-int main(int argc, char *argv[]){
-
-
-    if (argc < 2){
-        std::cout << "no input paramater was inputed" << std::endl;
-        return EXIT_FAILURE;
-    }
-    std::string fileName = argv[1];
+void handleFile(std::string fileName){
     std::string fileData = readFile(fileName);
 
     LZ77 lz77;
     if(!getFileExtension(fileName).compare(COMPRESSED_FILE_EXTENTION)){
         // decompress
-        cout << "decompression" << endl;
+        cout << fileName << ":decompression" << endl;
 
         /*
             Huffman decompression
@@ -38,7 +31,7 @@ int main(int argc, char *argv[]){
         writeFile(final_decompressed_text, name);
     }else{
         //compress
-        cout << "compression" << endl;
+        cout << fileName << ": compression" << endl;
 
         std::string lz_compressed = lz77.compress(fileData);
 
@@ -50,13 +43,37 @@ int main(int argc, char *argv[]){
         writeFile(huffman_compression_text, fileName + "." + COMPRESSED_FILE_EXTENTION);
     }
 
-    cout << "complete" << endl;
-
-    return EXIT_SUCCESS;
+    cout << fileName << ": complete" << endl;
 }
 
 
 
+// Program arguments: 
+//      1. FileName
+
+int main(int argc, char *argv[]){
 
 
+    if (argc < 2){
+        std::cout << "no input paramater was inputed" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    vector<thread> threads;
+
+    for (size_t i = 1; i < argc; i++)
+    {
+        std::string fileName = argv[i];
+        threads.emplace_back(handleFile, fileName);
+        // handleFile(fileName);
+    }
+    
+    for (auto && i : threads)
+    {
+        i.join();
+    }
+    
+
+    return EXIT_SUCCESS;
+}
 
