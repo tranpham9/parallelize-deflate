@@ -12,7 +12,7 @@ Command to run the program: <br>
 
 ## Necessary Files
 
-** FileParsing.cpp ** - Parses the file to be processed <br>
-** Huffman.cpp ** - Implements Huffman encoding and decoding <br>
-** KMPPatternMatching.cpp ** - Implments a modified version of KMP to be used in LZ77 <br>
-** LZ77.cpp ** - Implements LZ77 compression and decompression <br>
+**FileParsing.cpp** - Parses the file to be processed <br>
+**Huffman.cpp** - Implements Huffman encoding and decoding <br>
+**KMPPatternMatching.cpp** - Implments a modified version of KMP to be used in LZ77 <br>
+**LZ77.cpp** - Implements LZ77 compression and decompression <br>
