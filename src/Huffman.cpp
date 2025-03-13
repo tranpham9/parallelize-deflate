@@ -1,6 +1,9 @@
 #include <iostream>
 #include <queue>
 #include <string>
+#include <stdint.h>
+#include <sstream>
+#include <bitset>
 #include <unordered_map>
 #include <utility>
 
@@ -36,6 +39,56 @@ struct compare {
 
 string encode(const string &data, const unordered_map<char, string> &huffmanCode);
 string decode(const string &encodedData, HuffmanNode *root);
+
+
+/**
+ * Converts a string of binary into ascii
+ * String will be buffered by zero if data is not divisable by 8
+ * @param
+ * @return An ascii version of the binary. Note: It will always end with a null value
+ */
+string binaryToASCII(string& data){
+    if (data.empty()){
+        return nullptr;
+    }
+
+    // buffers the string of binary with 0's as needed
+    if (data.length() % 8 != 0){
+        int bufferAmount = 8 - (data.length()%8);
+        data.append(bufferAmount, '0');
+    }
+
+
+    // converts the string of binary to ascii
+    std::stringstream sstream(data);
+    std::string output;
+    while(sstream.good())
+    {
+        std::bitset<8> bits;
+        sstream >> bits;
+        char c = char(bits.to_ulong());
+        output += c;
+    }
+
+    return output;
+}
+
+/**
+ * converts ascii to binary
+ */
+std::string asciiToBinary(const string& asciiString) {
+    if (asciiString.empty()){
+        return nullptr;
+    }
+
+    // ascii to binary
+    std::string binaryString = "";
+    for (char c : asciiString) {
+        binaryString += std::bitset<8>(c).to_string();
+    }
+    return binaryString;
+}
+
 
 /**
  * @brief Build the Huffman Tree by repeatedly combining two nodes with the lowest frequncies
@@ -178,7 +231,7 @@ string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
 }
 
 int main() {
-    string test = "AAAAAABCCCCCCDDEEEEE";
+    string test = "KDBxCGDc1dCZnwMFrhaoAxhIOi5ydmn1JFpgVzsnlTM2h7IUnP6fYNqZHr3Q2BBIfGDq2JOstNkuet837VnJvVpW1PxMPqsUYHqKuOxiIJtOBjUdouqNVcgZw3288lc6SD2uu069MZJzlvtVBWDwJn0wd2JBQ1f4j3Ul2fWxFTfRtuLXxZ8vd6VHEavN186eASqW2IYa9PaZA2WgQjpBxtfk6NuVSMapkBQnsfhJpCyhNUpysR9iEAlexefOr0oXLd0cdW84kiheZ5Pgt0chXT4wHV4NE04CxnqD91sNpP7alN2BrDK1olhERBhJCv3ypWZJv40LNUWvnZqcHicLpPMGXBXAmsvT7TJKPiNQQAVA2ZKL8yI8Jh3IqiBL6of1IxGXWW2Zb2eZxMWWpJDA4JTlT6gYtibBFBJJpbPR7a4wxlvCY93wjwuLce8uunSI5iE5o1AnDyDOAJWpoCaB5J6z0afB7kyaXoS6bq2H9bXAgRrFj0seQ20wLQj5ipVnvCFVSRPPjUMfGUiWQQCCD6OKZDmJGPzG4LcRJJot4lsyte9tpWeZzY9JAZL2Okj2Vt5R2By40Pd47PZ6bkO29auXPHy8OGRDDUxWGwp0pbTs7Qb6fsGfSeTUb6vEKdpXAEbslNekpJEt3IO4j6FyZyricXl0GRaOUqNbJZTiElfi8e8FjRLK0LsNrSzhCSQ1F5sfvGOCChHhHI2VAX9KhIDm85d7eOr5pFDtQqfxA8o1RNhyV1ugIJ8eglKpp8xfFoUEzFuqAGEpoHfuvXGPFzrkUz5iPGA8jHvLX6MBFY4BqdvnSAtKXvrbLqZIY2J6QYNYwwOxaJHIqwjOvCyXLQYPSDwPlVPPrYDqsQRKvaK8Z3rJ40S1sKvceto6oMBuAnLinubnBqo9KYIn3ttu1OuRcIl4VeozraQN4yXavNv4MLDjiAGmBzyRAIo0gSbvJMKGw4g2OrT75pG7rv4OMRHbMLJM8hF2DVSJojJ6";
 
     cout << test << endl;
 
