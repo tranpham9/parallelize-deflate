@@ -44,7 +44,7 @@ string decode(const string &encodedData, HuffmanNode *root);
 /**
  * Converts a string of binary into ascii
  * String will be buffered by zero if data is not divisable by 8
- * @param
+ * @param 
  * @return An ascii version of the binary. Note: It will always end with a null value
  */
 string binaryToASCII(string& data){
@@ -76,7 +76,7 @@ string binaryToASCII(string& data){
 /**
  * converts ascii to binary
  */
-std::string asciiToBinary(const string& asciiString) {
+std::string asciiToBinary(const string& asciiString, uint64_t bitcount) {
     if (asciiString.empty()){
         return nullptr;
     }
@@ -86,7 +86,7 @@ std::string asciiToBinary(const string& asciiString) {
     for (char c : asciiString) {
         binaryString += std::bitset<8>(c).to_string();
     }
-    return binaryString;
+    return binaryString.substr(0, bitcount);
 }
 
 

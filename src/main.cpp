@@ -19,7 +19,7 @@ void handleFile(string fileName)
         compressedFileData fileData = readCompressedFile(fileName);
 
 
-        string compressedBinaryString = asciiToBinary(fileData.compressedText);
+        string compressedBinaryString = asciiToBinary(fileData.compressedText, fileData.bitCount);
         HuffmanNode* huffmanTree = nullptr; // convert string tree into huffman tree 
 
 
