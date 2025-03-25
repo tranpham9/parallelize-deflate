@@ -8,37 +8,54 @@
 #define COMPRESSED_FILE_EXTENTION "pdc"
 using namespace std;
 
-void handleFile(std::string fileName) {
-    std::string fileData = readFile(fileName);
+void handleFile(string fileName)
+{
 
     LZ77 lz77;
-    if (!getFileExtension(fileName).compare(COMPRESSED_FILE_EXTENTION)) {
+    if (!getFileExtension(fileName).compare(COMPRESSED_FILE_EXTENTION))
+    {
         // decompress
         cout << fileName << ":decompression" << endl;
+        compressedFileData fileData = readCompressedFile(fileName);
 
-        /*
-            Huffman decompression
-        */
-        std::string huffman_decompress = fileData;
 
-        std::string final_decompressed_text = lz77.decompress(fileData);
+        string compressedBinaryString = asciiToBinary(fileData.compressedText);
+        HuffmanNode* huffmanTree = nullptr; // convert string tree into huffman tree 
 
-        std::string name = fileName.substr(0, fileName.size() - 4);
+
+        string huffman_decompress = decode(compressedBinaryString, huffmanTree);
+
+        string final_decompressed_text = lz77.decompress(huffman_decompress);
+
+        string name = fileName.substr(0, fileName.size() - 4);
 
         writeFile(final_decompressed_text, name);
-    } else {
+    }
+    else
+    {
         // compress
         cout << fileName << ": compression" << endl;
+        string fileData = readFile(fileName);
 
-        std::string lz_compressed = lz77.compress(fileData);
+        string lz_compressed = lz77.compress(fileData);
 
         /*
             Huffman Compress
         */
         pair<string, HuffmanNode *> p = HuffmanCodes(lz_compressed);
-        HuffmanNode *root = p.second;
 
-        writeFile(p.first, fileName + "." + COMPRESSED_FILE_EXTENTION);
+        // creates the different parts of the compressed file
+        string tree;
+        treeAsString(p.second, tree);
+        uint16_t treeLength = tree.length();
+
+        size_t compressLength = p.first.length();
+        string compressedASCII = binaryToASCII(p.first);
+
+        // forms the compressed file Name
+        string compressedFileName = fileName + "." + COMPRESSED_FILE_EXTENTION;
+
+        writeCompressedFile(compressedFileName, treeLength, compressLength, tree, compressedASCII);
     }
 
     cout << fileName << ": complete" << endl;
@@ -47,22 +64,26 @@ void handleFile(std::string fileName) {
 // Program arguments:
 //      1. FileName
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 
-    if (argc < 2) {
-        std::cout << "no input paramater was inputed" << std::endl;
+    if (argc < 2)
+    {
+        cout << "no input paramater was inputed" << endl;
         return EXIT_FAILURE;
     }
 
     vector<thread> threads;
 
-    for (size_t i = 1; i < argc; i++) {
-        std::string fileName = argv[i];
+    for (size_t i = 1; i < argc; i++)
+    {
+        string fileName = argv[i];
         threads.emplace_back(handleFile, fileName);
         // handleFile(fileName);
     }
 
-    for (auto &&i : threads) {
+    for (auto &&i : threads)
+    {
         i.join();
     }
 
