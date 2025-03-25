@@ -1,9 +1,9 @@
-#include <bitset>
 #include <iostream>
 #include <queue>
-#include <sstream>
-#include <stdint.h>
 #include <string>
+#include <stdint.h>
+#include <sstream>
+#include <bitset>
 #include <unordered_map>
 #include <utility>
 
@@ -16,7 +16,6 @@ public:
     HuffmanNode *left;
     HuffmanNode *right;
 
-    // parent node constructor
     HuffmanNode(char data, unsigned freq, HuffmanNode *left, HuffmanNode *right) {
         this->data = data;
         this->freq = freq;
@@ -24,7 +23,6 @@ public:
         this->right = right;
     }
 
-    // leaf node constructor
     HuffmanNode(char data, unsigned freq) {
         this->data = data;
         this->freq = freq;
@@ -33,6 +31,7 @@ public:
 
     // default node constructor
     HuffmanNode() {
+        this->data = '~';
         left = right = nullptr;
     }
 };
@@ -47,27 +46,30 @@ struct compare {
 string encode(const string &data, const unordered_map<char, string> &huffmanCode);
 string decode(const string &encodedData, HuffmanNode *root);
 
+
 /**
  * Converts a string of binary into ascii
  * String will be buffered by zero if data is not divisable by 8
- * @param
+ * @param 
  * @return An ascii version of the binary. Note: It will always end with a null value
  */
-string binaryToASCII(string &data) {
-    if (data.empty()) {
+string binaryToASCII(string& data){
+    if (data.empty()){
         return nullptr;
     }
 
     // buffers the string of binary with 0's as needed
-    if (data.length() % 8 != 0) {
-        int bufferAmount = 8 - (data.length() % 8);
+    if (data.length() % 8 != 0){
+        int bufferAmount = 8 - (data.length()%8);
         data.append(bufferAmount, '0');
     }
+
 
     // converts the string of binary to ascii
     std::stringstream sstream(data);
     std::string output;
-    while (sstream.good()) {
+    while(sstream.good())
+    {
         std::bitset<8> bits;
         sstream >> bits;
         char c = char(bits.to_ulong());
@@ -80,8 +82,8 @@ string binaryToASCII(string &data) {
 /**
  * converts ascii to binary
  */
-std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
-    if (asciiString.empty()) {
+std::string asciiToBinary(const string& asciiString, uint64_t bitcount) {
+    if (asciiString.empty()){
         return nullptr;
     }
 
@@ -92,6 +94,7 @@ std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
     }
     return binaryString.substr(0, bitcount);
 }
+
 
 /**
  * @brief Build the Huffman Tree by repeatedly combining two nodes with the lowest frequncies
@@ -175,9 +178,10 @@ string encodeData(const string &data, const unordered_map<char, string> &huffman
  * @param res String representation of the tree
  */
 void treeAsString(HuffmanNode *root, string &res) {
-    if (!root)
+    if (!root){
+        
         return;
-
+    }
     // If it is a leaf node, append '1' and the character to the string.
     // If not a leaf node, append '0' to the string.
     if (!root->left && !root->right) {
@@ -190,6 +194,36 @@ void treeAsString(HuffmanNode *root, string &res) {
     // Recursively traverse the tree
     treeAsString(root->left, res);
     treeAsString(root->right, res);
+}
+
+
+HuffmanNode* stringAsTree(HuffmanNode *root, string &res, int &index){
+    if (root == nullptr && index < res.length()){
+        if (res[index] == '0'){
+            index++;
+            root = new HuffmanNode();
+
+            root->left = stringAsTree(root->left, res, index);
+            root->right = stringAsTree(root->right, res, index);
+
+        } else if (res[index] == '1'){
+            index++;
+            root = new HuffmanNode(res[index], 0);
+            cout << "leaf:  " << res[index] << " index: " << index << endl;
+            index++;
+        }
+    }
+    return root;
+}
+
+void printTree(HuffmanNode *root){
+    if (root == nullptr){
+        return;
+    }
+
+    cout << root->data << " ";
+    printTree(root->left);
+    printTree(root->right);
 }
 
 /**
@@ -234,23 +268,40 @@ string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
 }
 
 int main() {
-    string test = "KDBxCGDc1dCZnwMFrhaoAxhIOi5ydmn1JFpgVzsnlTM2h7IUnP6fYNqZHr3Q2BBIfGDq2JOstNkuet837VnJvVpW1PxMPqsUYHqKuOxiIJtOBjUdouqNVcgZw3288lc6SD2uu069MZJzlvtVBWDwJn0wd2JBQ1f4j3Ul2fWxFTfRtuLXxZ8vd6VHEavN186eASqW2IYa9PaZA2WgQjpBxtfk6NuVSMapkBQnsfhJpCyhNUpysR9iEAlexefOr0oXLd0cdW84kiheZ5Pgt0chXT4wHV4NE04CxnqD91sNpP7alN2BrDK1olhERBhJCv3ypWZJv40LNUWvnZqcHicLpPMGXBXAmsvT7TJKPiNQQAVA2ZKL8yI8Jh3IqiBL6of1IxGXWW2Zb2eZxMWWpJDA4JTlT6gYtibBFBJJpbPR7a4wxlvCY93wjwuLce8uunSI5iE5o1AnDyDOAJWpoCaB5J6z0afB7kyaXoS6bq2H9bXAgRrFj0seQ20wLQj5ipVnvCFVSRPPjUMfGUiWQQCCD6OKZDmJGPzG4LcRJJot4lsyte9tpWeZzY9JAZL2Okj2Vt5R2By40Pd47PZ6bkO29auXPHy8OGRDDUxWGwp0pbTs7Qb6fsGfSeTUb6vEKdpXAEbslNekpJEt3IO4j6FyZyricXl0GRaOUqNbJZTiElfi8e8FjRLK0LsNrSzhCSQ1F5sfvGOCChHhHI2VAX9KhIDm85d7eOr5pFDtQqfxA8o1RNhyV1ugIJ8eglKpp8xfFoUEzFuqAGEpoHfuvXGPFzrkUz5iPGA8jHvLX6MBFY4BqdvnSAtKXvrbLqZIY2J6QYNYwwOxaJHIqwjOvCyXLQYPSDwPlVPPrYDqsQRKvaK8Z3rJ40S1sKvceto6oMBuAnLinubnBqo9KYIn3ttu1OuRcIl4VeozraQN4yXavNv4MLDjiAGmBzyRAIo0gSbvJMKGw4g2OrT75pG7rv4OMRHbMLJM8hF2DVSJojJ6";
+    // string test = "KDBxCGDc1dCZnwMFrhaoAxhIOi5ydmn1JFpgVzsnlTM2h7IUnP6fYNqZHr3Q2BBIfGDq2JOstNkuet837VnJvVpW1PxMPqsUYHqKuOxiIJtOBjUdouqNVcgZw3288lc6SD2uu069MZJzlvtVBWDwJn0wd2JBQ1f4j3Ul2fWxFTfRtuLXxZ8vd6VHEavN186eASqW2IYa9PaZA2WgQjpBxtfk6NuVSMapkBQnsfhJpCyhNUpysR9iEAlexefOr0oXLd0cdW84kiheZ5Pgt0chXT4wHV4NE04CxnqD91sNpP7alN2BrDK1olhERBhJCv3ypWZJv40LNUWvnZqcHicLpPMGXBXAmsvT7TJKPiNQQAVA2ZKL8yI8Jh3IqiBL6of1IxGXWW2Zb2eZxMWWpJDA4JTlT6gYtibBFBJJpbPR7a4wxlvCY93wjwuLce8uunSI5iE5o1AnDyDOAJWpoCaB5J6z0afB7kyaXoS6bq2H9bXAgRrFj0seQ20wLQj5ipVnvCFVSRPPjUMfGUiWQQCCD6OKZDmJGPzG4LcRJJot4lsyte9tpWeZzY9JAZL2Okj2Vt5R2By40Pd47PZ6bkO29auXPHy8OGRDDUxWGwp0pbTs7Qb6fsGfSeTUb6vEKdpXAEbslNekpJEt3IO4j6FyZyricXl0GRaOUqNbJZTiElfi8e8FjRLK0LsNrSzhCSQ1F5sfvGOCChHhHI2VAX9KhIDm85d7eOr5pFDtQqfxA8o1RNhyV1ugIJ8eglKpp8xfFoUEzFuqAGEpoHfuvXGPFzrkUz5iPGA8jHvLX6MBFY4BqdvnSAtKXvrbLqZIY2J6QYNYwwOxaJHIqwjOvCyXLQYPSDwPlVPPrYDqsQRKvaK8Z3rJ40S1sKvceto6oMBuAnLinubnBqo9KYIn3ttu1OuRcIl4VeozraQN4yXavNv4MLDjiAGmBzyRAIo0gSbvJMKGw4g2OrT75pG7rv4OMRHbMLJM8hF2DVSJojJ6";
 
-    cout << test << endl;
+// string test = "abbcccddddeeeeeffffff";
+string test = "ffffffeeeeeddddcccbba";
+
+
+    cout << "original str: " << test << endl;
 
     pair<string, HuffmanNode *> p = HuffmanCodes(test);
 
     string res = p.first;
 
-    cout << res << endl;
+    cout << "compressed str in binary: " << res << endl;
 
     string decomp = HuffmanDecompress(res, p.second);
 
-    string tree;
+    string treeString1;
+    string treeString2;
 
-    treeAsString(p.second, tree);
+    HuffmanNode *root = nullptr;
 
-    cout << tree << endl;
+    int index = 0;
+
+
+    treeAsString(p.second, treeString1);
+    HuffmanNode *newRoot = stringAsTree(root, treeString1, index);
+    cout << "string as tree: ";
+    printTree(newRoot);
+
+    treeAsString(newRoot, treeString2);
+
+    cout << endl << treeString1 << endl << endl;
+    cout << endl << treeString2 << endl << endl;
+
 
     cout << decomp << endl;
 
