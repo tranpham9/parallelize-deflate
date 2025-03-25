@@ -15,15 +15,15 @@ void handleFile(string fileName)
     if (!getFileExtension(fileName).compare(COMPRESSED_FILE_EXTENTION))
     {
         // decompress
-        cout << fileName << ":decompression" << endl;
+        std::cout << fileName << ":decompression" << endl;
         compressedFileData fileData = readCompressedFile(fileName);
-
+        int util;
 
         string compressedBinaryString = asciiToBinary(fileData.compressedText, fileData.bitCount);
-        HuffmanNode* huffmanTree = nullptr; // convert string tree into huffman tree 
+        HuffmanNode* huffmanTree = stringAsTree(nullptr, fileData.tree, util); // convert string tree into huffman tree 
 
 
-        string huffman_decompress = decode(compressedBinaryString, huffmanTree);
+        string huffman_decompress = HuffmanDecompress(compressedBinaryString, huffmanTree);
 
         string final_decompressed_text = lz77.decompress(huffman_decompress);
 
@@ -34,7 +34,7 @@ void handleFile(string fileName)
     else
     {
         // compress
-        cout << fileName << ": compression" << endl;
+        std::cout << fileName << ": compression" << endl;
         string fileData = readFile(fileName);
 
         string lz_compressed = lz77.compress(fileData);
@@ -58,7 +58,7 @@ void handleFile(string fileName)
         writeCompressedFile(compressedFileName, treeLength, compressLength, tree, compressedASCII);
     }
 
-    cout << fileName << ": complete" << endl;
+    std::cout << fileName << ": complete" << endl;
 }
 
 // Program arguments:
