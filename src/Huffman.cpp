@@ -1,9 +1,9 @@
+#include <bitset>
 #include <iostream>
 #include <queue>
-#include <string>
-#include <stdint.h>
 #include <sstream>
-#include <bitset>
+#include <stdint.h>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
@@ -16,6 +16,7 @@ public:
     HuffmanNode *left;
     HuffmanNode *right;
 
+    // parent node constructor
     HuffmanNode(char data, unsigned freq, HuffmanNode *left, HuffmanNode *right) {
         this->data = data;
         this->freq = freq;
@@ -23,9 +24,15 @@ public:
         this->right = right;
     }
 
+    // leaf node constructor
     HuffmanNode(char data, unsigned freq) {
         this->data = data;
         this->freq = freq;
+        left = right = nullptr;
+    }
+
+    // default node constructor
+    HuffmanNode() {
         left = right = nullptr;
     }
 };
@@ -40,30 +47,27 @@ struct compare {
 string encode(const string &data, const unordered_map<char, string> &huffmanCode);
 string decode(const string &encodedData, HuffmanNode *root);
 
-
 /**
  * Converts a string of binary into ascii
  * String will be buffered by zero if data is not divisable by 8
- * @param 
+ * @param
  * @return An ascii version of the binary. Note: It will always end with a null value
  */
-string binaryToASCII(string& data){
-    if (data.empty()){
+string binaryToASCII(string &data) {
+    if (data.empty()) {
         return nullptr;
     }
 
     // buffers the string of binary with 0's as needed
-    if (data.length() % 8 != 0){
-        int bufferAmount = 8 - (data.length()%8);
+    if (data.length() % 8 != 0) {
+        int bufferAmount = 8 - (data.length() % 8);
         data.append(bufferAmount, '0');
     }
-
 
     // converts the string of binary to ascii
     std::stringstream sstream(data);
     std::string output;
-    while(sstream.good())
-    {
+    while (sstream.good()) {
         std::bitset<8> bits;
         sstream >> bits;
         char c = char(bits.to_ulong());
@@ -76,8 +80,8 @@ string binaryToASCII(string& data){
 /**
  * converts ascii to binary
  */
-std::string asciiToBinary(const string& asciiString, uint64_t bitcount) {
-    if (asciiString.empty()){
+std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
+    if (asciiString.empty()) {
         return nullptr;
     }
 
@@ -88,7 +92,6 @@ std::string asciiToBinary(const string& asciiString, uint64_t bitcount) {
     }
     return binaryString.substr(0, bitcount);
 }
-
 
 /**
  * @brief Build the Huffman Tree by repeatedly combining two nodes with the lowest frequncies
