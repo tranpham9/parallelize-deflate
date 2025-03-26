@@ -1,4 +1,6 @@
-# DEFLATE - lossless file compression algorithm
+# DEFLATE 
+Parallel Lossless File Compression 
+
 
 ## Usage of the program
 
