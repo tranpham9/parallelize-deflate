@@ -99,6 +99,14 @@ std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
     return binaryString.substr(0, bitcount);
 }
 
+unordered_map<char, unsigned> countFreq(const string &data) {
+    unordered_map<char, unsigned> freq;
+    for (char c : data) {
+        freq[c]++;
+    }
+    return freq;
+}
+
 /**
  * @brief Build the Huffman Tree by repeatedly combining two nodes with the lowest frequncies
  * into a new until there is only one node left. The last node will become the root of the tree
@@ -108,10 +116,7 @@ std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
  */
 HuffmanNode *buildTree(string data) {
     // Use an unordered map to count the occurences of characters
-    unordered_map<char, unsigned> freq;
-    for (char c : data) {
-        freq[c]++;
-    }
+    unordered_map<char, unsigned> freq = countFreq(data);
 
     // Minheap to store the nodes of the tree based on frequencies
     priority_queue<HuffmanNode *, vector<HuffmanNode *>, compare> minHeap;
@@ -169,6 +174,7 @@ string encodeData(const string &data, const unordered_map<char, string> &huffman
     for (char c : data) {
         if (huffmanCode.find(c) == huffmanCode.end()) {
             cerr << "Character not found in Huffman code map: '" << c << "' (" << int(c) << ")" << endl;
+            return "";
         }
         encodedData += huffmanCode.at(c);
     }
@@ -272,40 +278,44 @@ string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
     return decodedData;
 }
 
-// int main() {
-//     string test = "KDBxCGDc1dCZnwMFrhaoAxhIOi5ydmn1JFpgVzsnlTM2h7IUnP6fYNqZHr3Q2BBIfGDq2JOstNkuet837VnJvVpW1PxMPqsUYHqKuOxiIJtOBjUdouqNVcgZw3288lc6SD2uu069MZJzlvtVBWDwJn0wd2JBQ1f4j3Ul2fWxFTfRtuLXxZ8vd6VHEavN186eASqW2IYa9PaZA2WgQjpBxtfk6NuVSMapkBQnsfhJpCyhNUpysR9iEAlexefOr0oXLd0cdW84kiheZ5Pgt0chXT4wHV4NE04CxnqD91sNpP7alN2BrDK1olhERBhJCv3ypWZJv40LNUWvnZqcHicLpPMGXBXAmsvT7TJKPiNQQAVA2ZKL8yI8Jh3IqiBL6of1IxGXWW2Zb2eZxMWWpJDA4JTlT6gYtibBFBJJpbPR7a4wxlvCY93wjwuLce8uunSI5iE5o1AnDyDOAJWpoCaB5J6z0afB7kyaXoS6bq2H9bXAgRrFj0seQ20wLQj5ipVnvCFVSRPPjUMfGUiWQQCCD6OKZDmJGPzG4LcRJJot4lsyte9tpWeZzY9JAZL2Okj2Vt5R2By40Pd47PZ6bkO29auXPHy8OGRDDUxWGwp0pbTs7Qb6fsGfSeTUb6vEKdpXAEbslNekpJEt3IO4j6FyZyricXl0GRaOUqNbJZTiElfi8e8FjRLK0LsNrSzhCSQ1F5sfvGOCChHhHI2VAX9KhIDm85d7eOr5pFDtQqfxA8o1RNhyV1ugIJ8eglKpp8xfFoUEzFuqAGEpoHfuvXGPFzrkUz5iPGA8jHvLX6MBFY4BqdvnSAtKXvrbLqZIY2J6QYNYwwOxaJHIqwjOvCyXLQYPSDwPlVPPrYDqsQRKvaK8Z3rJ40S1sKvceto6oMBuAnLinubnBqo9KYIn3ttu1OuRcIl4VeozraQN4yXavNv4MLDjiAGmBzyRAIo0gSbvJMKGw4g2OrT75pG7rv4OMRHbMLJM8hF2DVSJojJ6";
+int main() {
+    string test = "KDBxCGDc1dCZnwMFrhaoAxhIOi5ydmn1JFpgVzsnlTM2h7IUnP6fYNqZHr3Q2BBIfGDq2JOstNkuet837VnJvVpW1PxMPqsUYHqKuOxiIJtOBjUdouqNVcgZw3288lc6SD2uu069MZJzlvtVBWDwJn0wd2JBQ1f4j3Ul2fWxFTfRtuLXxZ8vd6VHEavN186eASqW2IYa9PaZA2WgQjpBxtfk6NuVSMapkBQnsfhJpCyhNUpysR9iEAlexefOr0oXLd0cdW84kiheZ5Pgt0chXT4wHV4NE04CxnqD91sNpP7alN2BrDK1olhERBhJCv3ypWZJv40LNUWvnZqcHicLpPMGXBXAmsvT7TJKPiNQQAVA2ZKL8yI8Jh3IqiBL6of1IxGXWW2Zb2eZxMWWpJDA4JTlT6gYtibBFBJJpbPR7a4wxlvCY93wjwuLce8uunSI5iE5o1AnDyDOAJWpoCaB5J6z0afB7kyaXoS6bq2H9bXAgRrFj0seQ20wLQj5ipVnvCFVSRPPjUMfGUiWQQCCD6OKZDmJGPzG4LcRJJot4lsyte9tpWeZzY9JAZL2Okj2Vt5R2By40Pd47PZ6bkO29auXPHy8OGRDDUxWGwp0pbTs7Qb6fsGfSeTUb6vEKdpXAEbslNekpJEt3IO4j6FyZyricXl0GRaOUqNbJZTiElfi8e8FjRLK0LsNrSzhCSQ1F5sfvGOCChHhHI2VAX9KhIDm85d7eOr5pFDtQqfxA8o1RNhyV1ugIJ8eglKpp8xfFoUEzFuqAGEpoHfuvXGPFzrkUz5iPGA8jHvLX6MBFY4BqdvnSAtKXvrbLqZIY2J6QYNYwwOxaJHIqwjOvCyXLQYPSDwPlVPPrYDqsQRKvaK8Z3rJ40S1sKvceto6oMBuAnLinubnBqo9KYIn3ttu1OuRcIl4VeozraQN4yXavNv4MLDjiAGmBzyRAIo0gSbvJMKGw4g2OrT75pG7rv4OMRHbMLJM8hF2DVSJojJ6";
 
-// // string test = "abbcccddddeeeeeffffff";
-// // string test = "ffffffeeeeeddddcccbba";
+    // string test = "abbcccddddeeeeeffffff";
+    // string test = "ffffffeeeeeddddcccbba";
 
-//     cout << "original str: " << test << endl;
+    cout << "original str: " << test << endl;
 
-//     pair<string, HuffmanNode *> p = HuffmanCodes(test);
+    pair<string, HuffmanNode *> p = HuffmanCodes(test);
 
-//     string res = p.first;
+    string res = p.first;
 
-//     cout << "compressed str in binary: " << res << endl;
+    cout << "compressed str in binary: " << res << endl;
 
-//     string decomp = HuffmanDecompress(res, p.second);
+    string decomp = HuffmanDecompress(res, p.second);
 
-//     string treeString1;
-//     string treeString2;
+    string treeString1;
+    string treeString2;
 
-//     HuffmanNode *root = nullptr;
+    HuffmanNode *root = nullptr;
 
-//     int index = 0;
+    int index = 0;
 
-//     treeAsString(p.second, treeString1);
-//     HuffmanNode *newRoot = stringAsTree(root, treeString1, index);
-//     cout << "string as tree: ";
-//     printTree(newRoot);
+    treeAsString(p.second, treeString1);
+    HuffmanNode *newRoot = stringAsTree(root, treeString1, index);
+    cout << "string as tree: ";
+    printTree(newRoot);
 
-//     treeAsString(newRoot, treeString2);
+    treeAsString(newRoot, treeString2);
 
-//     cout << endl << treeString1 << endl << endl;
-//     cout << endl << treeString2 << endl << endl;
+    cout << endl
+         << treeString1 << endl
+         << endl;
+    cout << endl
+         << treeString2 << endl
+         << endl;
 
-//     cout << decomp << endl;
+    cout << decomp << endl;
 
-//     return 0;
-// }
+    return 0;
+}
