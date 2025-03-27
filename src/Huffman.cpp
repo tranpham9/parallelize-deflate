@@ -1,9 +1,9 @@
+#include <bitset>
 #include <iostream>
 #include <queue>
-#include <string>
-#include <stdint.h>
 #include <sstream>
-#include <bitset>
+#include <stdint.h>
+#include <string>
 #include <unordered_map>
 #include <utility>
 
@@ -15,24 +15,31 @@ public:
     unsigned freq;
     HuffmanNode *left;
     HuffmanNode *right;
+    bool isLeaf;
 
-    HuffmanNode(char data, unsigned freq, HuffmanNode *left, HuffmanNode *right) {
-        this->data = data;
-        this->freq = freq;
-        this->left = left;
-        this->right = right;
-    }
-
+    // Constructor for leaf nodes
     HuffmanNode(char data, unsigned freq) {
         this->data = data;
         this->freq = freq;
-        left = right = nullptr;
+        this->left = this->right = nullptr;
+        this->isLeaf = true;
     }
 
-    // default node constructor
+    // Constructor for internal nodes
+    HuffmanNode(unsigned freq, HuffmanNode *left, HuffmanNode *right) {
+        this->data = '\0'; // not used
+        this->freq = freq;
+        this->left = left;
+        this->right = right;
+        this->isLeaf = false;
+    }
+
+    // Optional default constructor
     HuffmanNode() {
-        this->data = '~';
-        left = right = nullptr;
+        this->data = '\0';
+        this->freq = 0;
+        this->left = this->right = nullptr;
+        this->isLeaf = false;
     }
 };
 
@@ -46,30 +53,27 @@ struct compare {
 string encode(const string &data, const unordered_map<char, string> &huffmanCode);
 string decode(const string &encodedData, HuffmanNode *root);
 
-
 /**
  * Converts a string of binary into ascii
  * String will be buffered by zero if data is not divisable by 8
- * @param 
+ * @param
  * @return An ascii version of the binary. Note: It will always end with a null value
  */
-string binaryToASCII(string& data){
-    if (data.empty()){
+string binaryToASCII(string &data) {
+    if (data.empty()) {
         return nullptr;
     }
 
     // buffers the string of binary with 0's as needed
-    if (data.length() % 8 != 0){
-        int bufferAmount = 8 - (data.length()%8);
+    if (data.length() % 8 != 0) {
+        int bufferAmount = 8 - (data.length() % 8);
         data.append(bufferAmount, '0');
     }
-
 
     // converts the string of binary to ascii
     std::stringstream sstream(data);
     std::string output;
-    while(sstream.good())
-    {
+    while (sstream.good()) {
         std::bitset<8> bits;
         sstream >> bits;
         char c = char(bits.to_ulong());
@@ -82,8 +86,8 @@ string binaryToASCII(string& data){
 /**
  * converts ascii to binary
  */
-std::string asciiToBinary(const string& asciiString, uint64_t bitcount) {
-    if (asciiString.empty()){
+std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
+    if (asciiString.empty()) {
         return nullptr;
     }
 
@@ -94,7 +98,6 @@ std::string asciiToBinary(const string& asciiString, uint64_t bitcount) {
     }
     return binaryString.substr(0, bitcount);
 }
-
 
 /**
  * @brief Build the Huffman Tree by repeatedly combining two nodes with the lowest frequncies
@@ -127,7 +130,7 @@ HuffmanNode *buildTree(string data) {
 
         // Create a node to connect the left and right nodes, using the left and right sum as frequency
         int sum = left->freq + right->freq;
-        minHeap.push(new HuffmanNode('$', sum, left, right));
+        minHeap.push(new HuffmanNode(sum, left, right));
     }
 
     // Return the reamaining node in the minHeap. This is the root node.
@@ -145,7 +148,7 @@ void printCodes(HuffmanNode *root, string str, unordered_map<char, string> &huff
     if (!root)
         return;
 
-    if (root->data != '$') {
+    if (root->isLeaf) {
         huffmanCode[root->data] = str;
     }
 
@@ -163,8 +166,10 @@ void printCodes(HuffmanNode *root, string str, unordered_map<char, string> &huff
  */
 string encodeData(const string &data, const unordered_map<char, string> &huffmanCode) {
     string encodedData;
-
     for (char c : data) {
+        if (huffmanCode.find(c) == huffmanCode.end()) {
+            cerr << "Character not found in Huffman code map: '" << c << "' (" << int(c) << ")" << endl;
+        }
         encodedData += huffmanCode.at(c);
     }
 
@@ -178,13 +183,13 @@ string encodeData(const string &data, const unordered_map<char, string> &huffman
  * @param res String representation of the tree
  */
 void treeAsString(HuffmanNode *root, string &res) {
-    if (!root){
-        
+    if (!root) {
+
         return;
     }
     // If it is a leaf node, append '1' and the character to the string.
     // If not a leaf node, append '0' to the string.
-    if (!root->left && !root->right) {
+    if (root->isLeaf) {
         res += '1';
         res += root->data;
     } else {
@@ -196,28 +201,28 @@ void treeAsString(HuffmanNode *root, string &res) {
     treeAsString(root->right, res);
 }
 
+HuffmanNode *stringAsTree(HuffmanNode *root, string &res, int &index) {
+    if (index >= res.length())
+        return nullptr;
 
-HuffmanNode* stringAsTree(HuffmanNode *root, string &res, int &index){
-    if (root == nullptr && index < res.length()){
-        if (res[index] == '0'){
-            index++;
-            root = new HuffmanNode();
-
-            root->left = stringAsTree(root->left, res, index);
-            root->right = stringAsTree(root->right, res, index);
-
-        } else if (res[index] == '1'){
-            index++;
-            root = new HuffmanNode(res[index], 0);
-            cout << "leaf:  " << res[index] << " index: " << index << endl;
-            index++;
-        }
+    if (res[index] == '0') {
+        index++;
+        root = new HuffmanNode(); // internal node
+        root->isLeaf = false;
+        root->left = stringAsTree(root->left, res, index);
+        root->right = stringAsTree(root->right, res, index);
+    } else if (res[index] == '1') {
+        index++;
+        root = new HuffmanNode(res[index], 0); // leaf node
+        root->isLeaf = true;
+        index++;
     }
+
     return root;
 }
 
-void printTree(HuffmanNode *root){
-    if (root == nullptr){
+void printTree(HuffmanNode *root) {
+    if (root == nullptr) {
         return;
     }
 
@@ -273,7 +278,6 @@ string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
 // // string test = "abbcccddddeeeeeffffff";
 // // string test = "ffffffeeeeeddddcccbba";
 
-
 //     cout << "original str: " << test << endl;
 
 //     pair<string, HuffmanNode *> p = HuffmanCodes(test);
@@ -291,7 +295,6 @@ string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
 
 //     int index = 0;
 
-
 //     treeAsString(p.second, treeString1);
 //     HuffmanNode *newRoot = stringAsTree(root, treeString1, index);
 //     cout << "string as tree: ";
@@ -301,7 +304,6 @@ string HuffmanDecompress(const string &encodedData, HuffmanNode *root) {
 
 //     cout << endl << treeString1 << endl << endl;
 //     cout << endl << treeString2 << endl << endl;
-
 
 //     cout << decomp << endl;
 
