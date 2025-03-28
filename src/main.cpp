@@ -8,20 +8,19 @@
 #define COMPRESSED_FILE_EXTENTION "pdc"
 using namespace std;
 
-void handleFile(string fileName)
-{
+void handleFile(string fileName) {
+
+    cout << "Handling file: " << fileName << endl;
 
     LZ77 lz77;
-    if (!getFileExtension(fileName).compare(COMPRESSED_FILE_EXTENTION))
-    {
+    if (!getFileExtension(fileName).compare(COMPRESSED_FILE_EXTENTION)) {
         // decompress
         std::cout << fileName << ":decompression" << endl;
         compressedFileData fileData = readCompressedFile(fileName);
         int util;
 
         string compressedBinaryString = asciiToBinary(fileData.compressedText, fileData.bitCount);
-        HuffmanNode* huffmanTree = stringAsTree(nullptr, fileData.tree, util); // convert string tree into huffman tree 
-
+        HuffmanNode *huffmanTree = stringAsTree(nullptr, fileData.tree, util); // convert string tree into huffman tree
 
         string huffman_decompress = HuffmanDecompress(compressedBinaryString, huffmanTree);
 
@@ -30,9 +29,7 @@ void handleFile(string fileName)
         string name = fileName.substr(0, fileName.size() - 4);
 
         writeFile(final_decompressed_text, name);
-    }
-    else
-    {
+    } else {
         // compress
         std::cout << fileName << ": compression" << endl;
         string fileData = readFile(fileName);
@@ -64,28 +61,27 @@ void handleFile(string fileName)
 // Program arguments:
 //      1. FileName
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
-    if (argc < 2)
-    {
+    if (argc < 2) {
         cout << "no input paramater was inputed" << endl;
         return EXIT_FAILURE;
     }
 
-    vector<thread> threads;
+    // vector<thread> threads;
+    // for (size_t i = 1; i < argc; i++) {
+    //     string fileName = argv[i];
+    //     threads.emplace_back(handleFile, fileName);
+    // }
 
-    for (size_t i = 1; i < argc; i++)
-    {
+    for (size_t i = 1; i < argc; i++) {
         string fileName = argv[i];
-        threads.emplace_back(handleFile, fileName);
-        // handleFile(fileName);
+        handleFile(fileName);
     }
 
-    for (auto &&i : threads)
-    {
-        i.join();
-    }
+    // for (auto &&i : threads) {
+    //     i.join();
+    // }
 
     return EXIT_SUCCESS;
 }
