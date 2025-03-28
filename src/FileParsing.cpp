@@ -78,13 +78,12 @@ compressedFileData readCompressedFile(string fileName)
         throw std::runtime_error("Could not open file");
     }
 
+    inputFile.read(reinterpret_cast<char*>(&data.treeSize), sizeof(data.treeSize));
+    inputFile.read(reinterpret_cast<char*>(&data.bitCount), sizeof(data.bitCount));
 
-    inputFile >> data.treeSize;
-    inputFile >> data.bitCount;
-    
-    char *temp;
-    inputFile.read(temp, data.treeSize);
-    data.tree = string(temp);
+    char buf[data.treeSize];
+    inputFile.read(buf, data.treeSize);
+    data.tree = string(buf);
 
     std::stringstream buffer;
     buffer << inputFile.rdbuf();
@@ -92,7 +91,6 @@ compressedFileData readCompressedFile(string fileName)
 
     return data;
 }
-
 
 /**
  * Writes the text to a file
@@ -132,10 +130,30 @@ void writeCompressedFile(string fileName, uint16_t treeSize, uint64_t bitCount, 
         return;
     }
 
-    outfile << treeSize;
-    outfile << bitCount;
+    outfile.write(reinterpret_cast<const char*>(&treeSize), sizeof(treeSize));
+    outfile.write(reinterpret_cast<const char*>(&bitCount), sizeof(bitCount));
     outfile << tree;
     outfile << compressedText;
 
     outfile.close();
 }
+
+// int main()
+// {
+//     string fileName = "writeTest.txt";
+//     uint16_t treeSize = 15;
+//     uint64_t bitCount = 60;
+//     string tree = "123456789012345";
+//     string compressedText = "123456789012345678901234567890123456789012345678901234567890";
+
+//     writeCompressedFile(fileName, treeSize, bitCount, tree, compressedText);
+
+//     compressedFileData fd = readCompressedFile(fileName);
+
+//     cout << fd.treeSize << endl
+//          << fd.bitCount << endl
+//          << fd.tree << endl
+//          << fd.compressedText << endl;
+
+//     return 0;
+// }
