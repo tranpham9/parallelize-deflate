@@ -26,7 +26,7 @@ void handleFile(string fileName) {
 
         string final_decompressed_text = lz77.decompress(huffman_decompress);
 
-        string name = fileName.substr(0, fileName.size() - 4);
+        string name = "copy_" + fileName.substr(0, fileName.size() - 4);
 
         writeFile(final_decompressed_text, name);
     } else {
