@@ -66,11 +66,8 @@ std::string readFile(std::string fileName)
  * @param fileName The name of the file to be read
  * @return compressedFileData The data of the compressed file
  */
-compressedFileData readCompressedFile(string fileName)
-{
-
-    compressedFileData data;
-    ifstream inputFile(fileName);
+compressedFileData readCompressedFile(std::string fileName){
+    std::ifstream inputFile(fileName);
 
     // Check if the file is successfully opened
     if (!inputFile.is_open())
@@ -78,18 +75,23 @@ compressedFileData readCompressedFile(string fileName)
         throw std::runtime_error("Could not open file");
     }
 
-    inputFile.read(reinterpret_cast<char*>(&data.treeSize), sizeof(data.treeSize));
-    inputFile.read(reinterpret_cast<char*>(&data.bitCount), sizeof(data.bitCount));
+    compressedFileData fd;
 
-    char buf[data.treeSize];
-    inputFile.read(buf, data.treeSize);
-    data.tree = string(buf);
+    // Read the tree size and bit count
+    inputFile.read(reinterpret_cast<char*>(&fd.treeSize), sizeof(fd.treeSize));
+    inputFile.read(reinterpret_cast<char*>(&fd.bitCount), sizeof(fd.bitCount));
 
-    std::stringstream buffer;
-    buffer << inputFile.rdbuf();
-    data.compressedText = buffer.str();
+    // Read the tree data
+    fd.tree.resize(fd.treeSize);
+    inputFile.read(&fd.tree[0], fd.treeSize);
 
-    return data;
+    // Read the compressed text
+    std::string compressedText((std::istreambuf_iterator<char>(inputFile)), std::istreambuf_iterator<char>());
+    fd.compressedText = compressedText;
+
+    inputFile.close();
+
+    return fd;
 }
 
 /**
