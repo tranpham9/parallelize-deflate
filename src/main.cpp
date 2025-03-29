@@ -68,20 +68,15 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    // vector<thread> threads;
-    // for (size_t i = 1; i < argc; i++) {
-    //     string fileName = argv[i];
-    //     threads.emplace_back(handleFile, fileName);
-    // }
-
+    vector<thread> threads;
     for (size_t i = 1; i < argc; i++) {
         string fileName = argv[i];
-        handleFile(fileName);
+        threads.emplace_back(handleFile, fileName);
     }
 
-    // for (auto &&i : threads) {
-    //     i.join();
-    // }
+    for (auto &&i : threads) {
+        i.join();
+    }
 
     return EXIT_SUCCESS;
 }
