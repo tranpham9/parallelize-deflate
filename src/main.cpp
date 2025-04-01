@@ -17,10 +17,15 @@ void handleFile(string fileName) {
         // decompress
         std::cout << fileName << ":decompression" << endl;
         compressedFileData fileData = readCompressedFile(fileName);
-        int util;
+        int util = 0;
 
         string compressedBinaryString = asciiToBinary(fileData.compressedText, fileData.bitCount);
         HuffmanNode *huffmanTree = stringAsTree(nullptr, fileData.tree, util); // convert string tree into huffman tree
+
+        if (!huffmanTree) {
+            std::cerr << "Decompression failed: Huffman tree is null." << std::endl;
+            return;
+        }
 
         string huffman_decompress = HuffmanDecompress(compressedBinaryString, huffmanTree);
 
