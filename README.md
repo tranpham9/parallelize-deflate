@@ -1,6 +1,6 @@
-# DEFLATE 
-Parallel Lossless File Compression 
+# DEFLATE
 
+Parallel Lossless File Compression
 
 ## Usage of the program
 
@@ -18,3 +18,4 @@ Command to run the program: <br>
 **Huffman.cpp** - Implements Huffman encoding and decoding <br>
 **KMPPatternMatching.cpp** - Implments a modified version of KMP to be used in LZ77 <br>
 **LZ77.cpp** - Implements LZ77 compression and decompression <br>
+**runTestFiles.sh** Runs all test files 5 times and showing the run times for each file <br>
