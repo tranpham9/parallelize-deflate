@@ -1,11 +1,14 @@
+#include <atomic>
 #include <bitset>
 #include <iostream>
 #include <queue>
 #include <sstream>
 #include <stdint.h>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 using namespace std;
 
@@ -99,12 +102,56 @@ std::string asciiToBinary(const string &asciiString, uint64_t bitcount) {
     return binaryString.substr(0, bitcount);
 }
 
-unordered_map<char, unsigned> countFreq(const string &data) {
-    unordered_map<char, unsigned> freq;
-    for (char c : data) {
-        freq[c]++;
+/**
+ * @brief Parallelized method to count the frequency of each character in the input string
+ *
+ * @param data Input string
+ * @return unordered_map<char, unsigned> Map of character frequencies
+ */
+unordered_map<char, unsigned> countFreqParallel(const string &data) {
+    const int numThreads = 8; // Get the number of available threads
+    const size_t dataSize = data.size();
+    const size_t chunkSize = (dataSize + numThreads - 1) / numThreads; // Divide data into chunks
+
+    // Vector of atomic integers to store frequencies (256 for ASCII characters)
+    vector<atomic<unsigned>> globalFreq(256);
+
+    // Lambda function for each thread to process a chunk
+    auto countChunk = [&](size_t start, size_t end) {
+        vector<unsigned> localFreq(256, 0); // Local frequency map for this thread
+        for (size_t i = start; i < end; ++i) {
+            localFreq[static_cast<unsigned char>(data[i])]++;
+        }
+        // Merge local frequencies into the global atomic frequency map
+        for (int i = 0; i < 256; ++i) {
+            globalFreq[i] += localFreq[i];
+        }
+    };
+
+    // Create threads to process chunks
+    vector<thread> threads;
+    for (int t = 0; t < numThreads; ++t) {
+        size_t start = t * chunkSize;
+        size_t end = min(start + chunkSize, dataSize);
+        if (start < end) {
+            threads.emplace_back(countChunk, start, end);
+        }
     }
-    return freq;
+
+    // Join all threads
+    for (auto &t : threads) {
+        t.join();
+    }
+
+    // Convert the global frequency vector to an unordered_map
+    unordered_map<char, unsigned> freqMap;
+    for (int i = 0; i < 256; ++i) {
+        if (globalFreq[i] > 0) {
+            freqMap[static_cast<char>(i)] = globalFreq[i];
+        }
+    }
+
+    return freqMap;
 }
 
 /**
@@ -116,7 +163,7 @@ unordered_map<char, unsigned> countFreq(const string &data) {
  */
 HuffmanNode *buildTree(string data) {
     // Use an unordered map to count the occurences of characters
-    unordered_map<char, unsigned> freq = countFreq(data);
+    unordered_map<char, unsigned> freq = countFreqParallel(data);
 
     // Minheap to store the nodes of the tree based on frequencies
     priority_queue<HuffmanNode *, vector<HuffmanNode *>, compare> minHeap;
