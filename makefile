@@ -6,10 +6,10 @@ CXX = g++
 CXXFLAGS =  -g -pthread -std=c++20
 
 # Target executable
-TARGET = build/deflate.out
+TARGET = build/deflate
 
 # For deleting the target
-TARGET_DEL = build/deflate.out
+TARGET_DEL = build/deflate
 
 # Source files
 SRCS = src/main.cpp
